@@ -39,7 +39,7 @@ const Home = () => {
     <div className="min-h-screen bg-gray-50 overflow-hidden">
       
       {/* Hero Section */}
-      <section className="relative bg-secondary text-white pt-24 pb-20 lg:pt-40 lg:pb-32 overflow-hidden flex items-center min-h-[90vh]">
+      <section className="relative bg-secondary text-white pt-8 pb-16 lg:pt-16 lg:pb-24 overflow-hidden flex items-center min-h-[80vh]">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/80 to-transparent" />
@@ -53,7 +53,7 @@ const Home = () => {
             
             {/* Left Content */}
             <motion.div 
-              className="w-full lg:w-3/5 text-center lg:text-left pt-10 lg:pt-0"
+              className="w-full lg:w-3/5 text-center lg:text-left -mt-8 lg:-mt-16"
               initial="hidden"
               animate="show"
               variants={containerVariants}
@@ -67,8 +67,8 @@ const Home = () => {
                 <span className="text-white">Pizza & BBQ</span>
               </motion.h1>
               
-              <motion.p variants={itemVariants} className="text-lg md:text-2xl text-gray-300 mb-10 max-w-2xl mx-auto lg:mx-0 font-medium">
-                Delivered Fresh Every Day. Experience the ultimate taste of Dubai Food & Pizza Hut right at your doorstep.
+              <motion.p variants={itemVariants} className="text-base sm:text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto lg:mx-0 font-medium leading-relaxed">
+                Delivered Fresh Every Day. Experience the ultimate taste of <span className="text-white font-bold">Dubai Fast Food and Cafe</span> right at your doorstep.
               </motion.p>
               
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start w-full sm:w-auto">
@@ -100,8 +100,19 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Marquee Announcement */}
+      <div className="bg-accent text-white py-2 md:py-3 overflow-hidden relative z-30 shadow-lg border-y-2 border-white/10">
+        <div className="animate-marquee-ltr flex items-center">
+          {[...Array(15)].map((_, i) => (
+            <span key={i} className="mx-4 md:mx-8 font-bold text-sm sm:text-base md:text-lg whitespace-nowrap tracking-wider">
+              ✅ FREE DELIVERY ABOVE RS.1500
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Featured Categories */}
-      <section className="py-20 lg:py-32 container mx-auto px-4 relative z-20 -mt-10 lg:-mt-20">
+      <section className="py-20 lg:py-24 container mx-auto px-4 relative z-20">
         <div className="flex justify-between items-end mb-10">
           <div>
             <h2 className="text-primary font-bold tracking-widest uppercase mb-2 text-sm md:text-base">Explore Menu</h2>

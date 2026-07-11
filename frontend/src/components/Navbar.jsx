@@ -28,26 +28,26 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'Menu', path: '/menu' },
     { name: 'Deals', path: '/deals' },
-    { name: 'About', path: '/about' },
     { name: 'Gallery', path: '/gallery' },
     { name: 'Reviews', path: '/reviews' },
+    { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' },
   ];
 
   return (
     <>
-      {/* Announcement Bar */}
-      <div className="bg-accent text-white text-sm font-bold text-center py-2 px-4 shadow-sm relative z-50">
-        ✅ Free Delivery Above Rs.1500
-      </div>
-
       <nav className="glass sticky top-0 z-40 transition-all duration-300 border-b border-gray-100">
         <div className="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
-          <Link to="/" className="text-2xl font-black text-secondary flex items-center gap-2 tracking-tight">
-            <div className="bg-primary text-secondary p-1.5 rounded-lg flex items-center justify-center">
+          <Link to="/" className="text-base sm:text-xl lg:text-2xl font-black text-secondary flex items-center gap-2 tracking-tight">
+            <div className="bg-primary text-secondary p-1.5 rounded-lg flex items-center justify-center shrink-0">
               🍔
             </div>
-            Dubai <span className="text-primary">Fast Food</span>
+            <div className="leading-tight sm:leading-none mt-1 sm:mt-0">
+              Dubai <span className="text-primary">Fast Food</span>
+              <span className="block sm:inline text-[10px] sm:text-xl lg:text-2xl text-gray-500 sm:text-secondary font-bold sm:font-black uppercase sm:normal-case tracking-widest sm:tracking-tight sm:ml-1.5">
+                and Cafe
+              </span>
+            </div>
           </Link>
           
           <div className="hidden lg:flex gap-6 xl:gap-8 items-center font-bold text-sm uppercase tracking-wide">
