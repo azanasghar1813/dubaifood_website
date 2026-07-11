@@ -117,12 +117,12 @@ const Menu = () => {
 
       <div className="max-w-7xl mx-auto px-4">
         {/* Sticky Tabs Navbar */}
-        <div className="bg-white rounded-2xl shadow-sm p-2 mb-12 flex overflow-x-auto hide-scrollbar sticky top-20 z-30 border border-gray-100">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-sm p-1 md:p-2 mb-8 md:mb-12 flex gap-1 md:gap-2 overflow-x-auto hide-scrollbar sticky top-16 md:top-20 z-30 border border-gray-100">
           {superCategories.map((tab) => (
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id); setSearchQuery(''); }}
-              className={`flex-1 whitespace-nowrap px-6 py-4 rounded-xl text-sm md:text-base font-bold transition-all duration-300 ${
+              className={`shrink-0 md:flex-1 whitespace-nowrap px-4 py-2.5 md:px-6 md:py-4 rounded-lg md:rounded-xl text-xs md:text-base font-bold transition-all duration-300 ${
                 activeTab === tab.id
                   ? 'bg-primary text-secondary shadow-md'
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
@@ -163,15 +163,15 @@ const Menu = () => {
                     <div className="h-[2px] flex-1 bg-gradient-to-r from-gray-200 to-transparent"></div>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                     {categoryGroup.items.map((item) => (
                       <motion.div 
                         whileHover={{ y: -5 }}
                         key={item._id} 
                         className="card flex flex-col justify-between group"
                       >
-                        <div className="p-5">
-                          <div className="h-48 bg-gray-50 rounded-2xl mb-5 flex items-center justify-center text-6xl overflow-hidden relative border border-gray-100">
+                        <div className="p-3 md:p-5">
+                          <div className="h-28 md:h-48 bg-gray-50 rounded-xl md:rounded-2xl mb-3 md:mb-5 flex items-center justify-center text-4xl md:text-6xl overflow-hidden relative border border-gray-100">
                             {/* Fallback emoji logic based on tab */}
                             {activeTab === 'fastfood' && '🍔'}
                             {activeTab === 'desi' && '🍲'}
@@ -185,44 +185,42 @@ const Menu = () => {
                             </div>
                           </div>
                           
-                          <div className="flex justify-between items-start gap-2 mb-2">
-                            <h3 className="text-lg font-black text-gray-900 leading-tight">{item.name}</h3>
+                          <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-1 sm:gap-2 mb-2">
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 leading-tight truncate sm:whitespace-normal">{item.name}</h3>
                             {!item.sizes?.length && (
-                              <span className="font-black text-accent text-lg shrink-0">Rs.{item.price}</span>
+                              <span className="font-black text-accent text-sm sm:text-lg shrink-0">Rs.{item.price}</span>
                             )}
                           </div>
                           
-                          {item.description && <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">{item.description}</p>}
+                          {item.description && <p className="text-[10px] sm:text-xs text-gray-500 mb-2 md:mb-4 line-clamp-2 leading-relaxed">{item.description}</p>}
                         </div>
                         
-                        <div className="px-5 pb-5 pt-0 mt-auto">
+                        <div className="px-3 md:px-5 pb-3 md:pb-5 pt-0 mt-auto">
                           {item.sizes && item.sizes.length > 0 ? (
-                            <div className="space-y-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Select Size:</p>
-                              <div className="flex flex-col gap-2">
-                                {item.sizes.map((size, idx) => (
-                                  <button 
-                                    key={idx}
+                            <div className="space-y-1.5 md:space-y-2 bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Select Size</p>
+                              {item.sizes.map((size) => (
+                                <div key={size.name} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-1.5 md:p-2 rounded-md shadow-sm gap-1 sm:gap-0">
+                                  <div className="flex flex-col">
+                                    <span className="text-xs md:text-sm font-bold text-gray-800">{size.name}</span>
+                                    <span className="text-[10px] md:text-xs text-accent font-bold">Rs.{size.price}</span>
+                                  </div>
+                                  <button
                                     onClick={() => handleAddToCart(item, size, size.price)}
-                                    className="bg-white border border-gray-200 hover:border-primary hover:bg-primary/5 px-4 py-2.5 rounded-lg transition-all flex justify-between items-center group/btn shadow-sm"
+                                    className="bg-primary/10 text-primary hover:bg-primary hover:text-secondary p-1 md:p-2 rounded-md transition-colors w-full sm:w-auto flex items-center justify-center"
+                                    title="Add to Cart"
                                   >
-                                    <span className="text-gray-700 font-bold text-sm">{size.name}</span>
-                                    <div className="flex items-center gap-3">
-                                      <span className="font-black text-secondary">Rs.{size.price}</span>
-                                      <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover/btn:bg-primary group-hover/btn:text-secondary transition-colors">
-                                        <Plus className="w-4 h-4" />
-                                      </div>
-                                    </div>
+                                    <Plus className="w-4 h-4" />
                                   </button>
-                                ))}
-                              </div>
+                                </div>
+                              ))}
                             </div>
                           ) : (
                             <button 
                               onClick={() => handleAddToCart(item, null, item.price)}
-                              className="w-full bg-secondary text-primary font-black py-3.5 rounded-xl hover:bg-gray-900 transition-colors shadow-lg flex items-center justify-center gap-2"
+                              className="w-full bg-secondary text-primary font-black py-2.5 md:py-3.5 text-sm md:text-base rounded-lg md:rounded-xl hover:bg-gray-900 transition-colors shadow-lg flex items-center justify-center gap-1.5 md:gap-2"
                             >
-                              Add to Cart <Plus className="w-5 h-5" />
+                              Add to Cart <Plus className="w-4 h-4 md:w-5 md:h-5" />
                             </button>
                           )}
                         </div>
