@@ -98,7 +98,7 @@ const Checkout = () => {
         totalPrice: total
       };
 
-      await axios.post('http://localhost:5000/api/orders', orderData);
+      await axios.post('https://dubaifood.onrender.com/api/orders', orderData);
       
       // 2. Redirect to WhatsApp
       const whatsappUrl = generateWhatsAppMessage();

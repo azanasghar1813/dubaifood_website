@@ -26,7 +26,7 @@ const Menu = () => {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/products');
+        const { data } = await axios.get('https://dubaifood.onrender.com/api/products');
         setMenuData(data);
       } catch (error) {
         toast.error('Failed to load menu');

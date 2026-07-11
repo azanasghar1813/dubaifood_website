@@ -12,7 +12,7 @@ const Deals = () => {
   useEffect(() => {
     const fetchDeals = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/deals');
+        const { data } = await axios.get('https://dubaifood.onrender.com/api/deals');
         setDeals(data);
       } catch (error) {
         toast.error('Failed to load deals');
