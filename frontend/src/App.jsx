@@ -1,0 +1,80 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import FloatingButtons from './components/FloatingButtons';
+
+// Customer Pages
+import Home from './pages/Home';
+import Menu from './pages/Menu';
+import Deals from './pages/Deals';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
+import About from './pages/About';
+import Gallery from './pages/Gallery';
+import Reviews from './pages/Reviews';
+import Contact from './pages/Contact';
+
+// Admin Pages
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminOrders from './pages/admin/AdminOrders';
+import AdminProducts from './pages/admin/AdminProducts';
+import AdminCustomers from './pages/admin/AdminCustomers';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminDeals from './pages/admin/AdminDeals';
+import AdminGallery from './pages/admin/AdminGallery';
+import AdminReviews from './pages/admin/AdminReviews';
+
+const CustomerLayout = ({ children }) => (
+  <div className="flex flex-col min-h-screen bg-gray-50">
+    <Navbar />
+    <main className="flex-grow">
+      {children}
+    </main>
+    <FloatingButtons />
+    <Footer />
+  </div>
+);
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="customers" element={<AdminCustomers />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="deals" element={<AdminDeals />} />
+          <Route path="gallery" element={<AdminGallery />} />
+          <Route path="reviews" element={<AdminReviews />} />
+        </Route>
+
+        {/* Customer Routes */}
+        <Route path="/*" element={
+          <CustomerLayout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/menu" element={<Menu />} />
+              <Route path="/deals" element={<Deals />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order-confirmation" element={<OrderConfirmation />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/reviews" element={<Reviews />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+          </CustomerLayout>
+        } />
+      </Routes>
+      <Toaster position="bottom-right" />
+    </Router>
+  );
+}
+
+export default App;
