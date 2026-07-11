@@ -15,6 +15,71 @@ const superCategories = [
 
 const filtersList = ['All', 'Spicy', 'Veg', 'Chicken', 'Beef'];
 
+const MenuItemCard = ({ item, activeTab, handleAddToCart }) => {
+  const [selectedSize, setSelectedSize] = useState(item.sizes?.length ? item.sizes[0] : null);
+  const priceToDisplay = selectedSize ? selectedSize.price : item.price;
+
+  return (
+    <motion.div 
+      whileHover={{ y: -5 }}
+      className="card flex flex-col justify-between group h-full"
+    >
+      <div className="p-3 md:p-5 flex-grow">
+        <div className="h-28 md:h-48 bg-gray-50 rounded-xl md:rounded-2xl mb-3 md:mb-5 flex items-center justify-center text-4xl md:text-6xl overflow-hidden relative border border-gray-100">
+          {activeTab === 'fastfood' && '🍔'}
+          {activeTab === 'desi' && '🍲'}
+          {activeTab === 'chinese' && '🍜'}
+          {activeTab === 'drinks' && '🥤'}
+          
+          <div className="absolute inset-0 bg-secondary/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm duration-300">
+            <span className="text-secondary bg-primary px-4 py-2 rounded-full font-bold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+              View Details
+            </span>
+          </div>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-1 sm:gap-2 mb-2">
+          <h3 className="text-sm sm:text-lg font-black text-gray-900 leading-tight truncate sm:whitespace-normal">{item.name}</h3>
+          {!item.sizes?.length && (
+            <span className="font-black text-accent text-sm sm:text-lg shrink-0">Rs.{item.price}</span>
+          )}
+        </div>
+        
+        {item.description && <p className="text-[10px] sm:text-xs text-gray-500 mb-2 md:mb-4 line-clamp-2 leading-relaxed">{item.description}</p>}
+      </div>
+      
+      <div className="px-3 md:px-5 pb-3 md:pb-5 pt-0 mt-auto flex flex-col gap-2 md:gap-3">
+        {item.sizes && item.sizes.length > 0 && (
+          <div className="space-y-1.5 md:space-y-2 bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Select Size</p>
+            <div className="flex flex-col gap-1.5">
+              {item.sizes.map((size) => (
+                <button
+                  key={size.name}
+                  onClick={() => setSelectedSize(size)}
+                  className={`flex items-center justify-between p-2 text-xs md:text-sm rounded-lg border transition-all ${selectedSize?.name === size.name ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-gray-200 bg-white text-gray-600 hover:border-primary/50'}`}
+                >
+                  <span>{size.name} - Rs.{size.price}</span>
+                  <div className={`shrink-0 w-3 h-3 rounded-full border-2 flex items-center justify-center ${selectedSize?.name === size.name ? 'border-primary' : 'border-gray-300'}`}>
+                    {selectedSize?.name === size.name && <div className="w-1.5 h-1.5 bg-primary rounded-full" />}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <button 
+          onClick={() => handleAddToCart(item, selectedSize, priceToDisplay)}
+          className="w-full bg-secondary text-primary font-black py-2.5 md:py-3.5 text-sm md:text-base rounded-lg md:rounded-xl hover:bg-gray-900 transition-colors shadow-lg flex items-center justify-center gap-1.5 md:gap-2 mt-auto"
+        >
+          Add to Cart <Plus className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
 const Menu = () => {
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -165,66 +230,12 @@ const Menu = () => {
                   
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                     {categoryGroup.items.map((item) => (
-                      <motion.div 
-                        whileHover={{ y: -5 }}
+                      <MenuItemCard 
                         key={item._id} 
-                        className="card flex flex-col justify-between group"
-                      >
-                        <div className="p-3 md:p-5">
-                          <div className="h-28 md:h-48 bg-gray-50 rounded-xl md:rounded-2xl mb-3 md:mb-5 flex items-center justify-center text-4xl md:text-6xl overflow-hidden relative border border-gray-100">
-                            {/* Fallback emoji logic based on tab */}
-                            {activeTab === 'fastfood' && '🍔'}
-                            {activeTab === 'desi' && '🍲'}
-                            {activeTab === 'chinese' && '🍜'}
-                            {activeTab === 'drinks' && '🥤'}
-                            
-                            <div className="absolute inset-0 bg-secondary/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm duration-300">
-                              <span className="text-secondary bg-primary px-4 py-2 rounded-full font-bold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                View Details
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-1 sm:gap-2 mb-2">
-                            <h3 className="text-sm sm:text-lg font-black text-gray-900 leading-tight truncate sm:whitespace-normal">{item.name}</h3>
-                            {!item.sizes?.length && (
-                              <span className="font-black text-accent text-sm sm:text-lg shrink-0">Rs.{item.price}</span>
-                            )}
-                          </div>
-                          
-                          {item.description && <p className="text-[10px] sm:text-xs text-gray-500 mb-2 md:mb-4 line-clamp-2 leading-relaxed">{item.description}</p>}
-                        </div>
-                        
-                        <div className="px-3 md:px-5 pb-3 md:pb-5 pt-0 mt-auto">
-                          {item.sizes && item.sizes.length > 0 ? (
-                            <div className="space-y-1.5 md:space-y-2 bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
-                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Select Size</p>
-                              {item.sizes.map((size) => (
-                                <div key={size.name} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-1.5 md:p-2 rounded-md shadow-sm gap-1 sm:gap-0">
-                                  <div className="flex flex-col">
-                                    <span className="text-xs md:text-sm font-bold text-gray-800">{size.name}</span>
-                                    <span className="text-[10px] md:text-xs text-accent font-bold">Rs.{size.price}</span>
-                                  </div>
-                                  <button
-                                    onClick={() => handleAddToCart(item, size, size.price)}
-                                    className="bg-primary/10 text-primary hover:bg-primary hover:text-secondary p-1 md:p-2 rounded-md transition-colors w-full sm:w-auto flex items-center justify-center"
-                                    title="Add to Cart"
-                                  >
-                                    <Plus className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <button 
-                              onClick={() => handleAddToCart(item, null, item.price)}
-                              className="w-full bg-secondary text-primary font-black py-2.5 md:py-3.5 text-sm md:text-base rounded-lg md:rounded-xl hover:bg-gray-900 transition-colors shadow-lg flex items-center justify-center gap-1.5 md:gap-2"
-                            >
-                              Add to Cart <Plus className="w-4 h-4 md:w-5 md:h-5" />
-                            </button>
-                          )}
-                        </div>
-                      </motion.div>
+                        item={item} 
+                        activeTab={activeTab} 
+                        handleAddToCart={handleAddToCart} 
+                      />
                     ))}
                   </div>
                 </div>
