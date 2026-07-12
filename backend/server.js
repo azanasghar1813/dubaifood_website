@@ -9,6 +9,9 @@ connectDB();
 
 const app = express();
 
+// Trust reverse proxy for rate limiter (required for Render/Heroku)
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(helmet()); // Set security HTTP headers
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" })); // Allow images to load from Cloudinary
