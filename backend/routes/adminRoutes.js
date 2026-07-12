@@ -8,9 +8,10 @@ const Settings = require('../models/Settings');
 const Gallery = require('../models/Gallery');
 const Review = require('../models/Review');
 const { cloudinary } = require('../middleware/upload');
+const { protect } = require('../middleware/authMiddleware');
 
-// Admin Auth Middleware placeholder (since we are doing a simple frontend auth for now)
-// In a real production app, you'd verify a JWT here.
+// Apply protection to all admin routes
+router.use(protect);
 
 // Helper to upload buffer to Cloudinary
 const streamUpload = (buffer, folder) => {

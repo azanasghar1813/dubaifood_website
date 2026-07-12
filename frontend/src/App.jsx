@@ -28,6 +28,38 @@ import AdminFeatured from './pages/admin/AdminFeatured';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminGallery from './pages/admin/AdminGallery';
 import AdminReviews from './pages/admin/AdminReviews';
+import axios from 'axios';
+
+// Configure Axios Interceptors
+axios.interceptors.request.use(
+  (config) => {
+    // Dynamically rewrite localhost URLs to production API URL if deployed
+    if (config.url.startsWith('http://localhost:5000/api')) {
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      config.url = config.url.replace('http://localhost:5000/api', baseUrl);
+    }
+
+    const token = localStorage.getItem('admin_token');
+    if (token && config.url.includes('/api/admin')) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401 && error.config.url.includes('/api/admin')) {
+      // Token expired or invalid
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_auth');
+      window.location.href = '/admin'; // Force re-login
+    }
+    return Promise.reject(error);
+  }
+);
 
 const CustomerLayout = ({ children }) => (
   <div className="flex flex-col min-h-screen bg-gray-50">

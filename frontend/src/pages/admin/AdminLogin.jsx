@@ -1,20 +1,36 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5000/api';
 
 const AdminLogin = ({ setAuthenticated }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (username === 'dubaifood@admin' && password === 'dubaifood@admin_1813') {
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, { username, password });
+      
+      localStorage.setItem('admin_token', response.data.token);
       localStorage.setItem('admin_auth', 'true');
       setAuthenticated(true);
       navigate('/admin');
-    } else {
-      setError('Invalid username or password');
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Failed to connect to server');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,9 +62,10 @@ const AdminLogin = ({ setAuthenticated }) => {
           </div>
           <button 
             type="submit" 
-            className="w-full bg-primary text-secondary font-bold py-2 px-4 rounded hover:bg-yellow-500 transition-colors"
+            disabled={loading}
+            className="w-full bg-primary text-secondary font-bold py-2 px-4 rounded hover:bg-yellow-500 transition-colors disabled:opacity-50"
           >
-            Login
+            {loading ? 'Authenticating...' : 'Login'}
           </button>
         </form>
       </div>
