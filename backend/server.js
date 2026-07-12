@@ -16,6 +16,7 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" })); // Allow 
 // CORS Configuration
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:5173',
   'https://wonderful-kheer-c7f5c8.netlify.app',
   'https://dubaifood.onrender.com'
 ];

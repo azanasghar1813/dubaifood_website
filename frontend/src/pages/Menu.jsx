@@ -196,11 +196,11 @@ const Menu = () => {
             />
           </div>
           
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto hide-scrollbar pb-2 md:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto hide-scrollbar">
             <div className="flex items-center gap-2 text-gray-500 font-bold px-3 border-r border-gray-200 shrink-0">
               <SlidersHorizontal className="w-5 h-5" /> Filters
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x">
+            <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar snap-x py-1">
               {filtersList.map(filter => (
                 <button 
                   key={filter.name}
