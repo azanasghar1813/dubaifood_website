@@ -1,14 +1,16 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, Settings, LogOut, List, Pizza } from 'lucide-react';
 
 const AdminSidebar = () => {
   const menuItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
     { name: 'Orders', path: '/admin/orders', icon: <ShoppingBag size={20} /> },
-    { name: 'Menu & Products', path: '/admin/products', icon: <UtensilsCrossed size={20} /> },
+    { name: 'Menu Items', path: '/admin/menu-items', icon: <Pizza size={20} /> },
     { name: 'Customers', path: '/admin/customers', icon: <Users size={20} /> },
     { name: 'Deals', path: '/admin/deals', icon: <ShoppingBag size={20} /> },
+    { name: 'Featured Items', path: '/admin/featured', icon: <UtensilsCrossed size={20} /> },
+    { name: 'Categories & Filters', path: '/admin/categories', icon: <List size={20} /> },
     { name: 'Gallery', path: '/admin/gallery', icon: <UtensilsCrossed size={20} /> },
     { name: 'Reviews', path: '/admin/reviews', icon: <Users size={20} /> },
     { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },

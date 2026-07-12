@@ -1,26 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ZoomIn } from 'lucide-react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+
+import ImageSlider from '../components/ImageSlider';
 
 const Gallery = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
   const [activeTab, setActiveTab] = useState('All');
+  const [categoriesList, setCategoriesList] = useState([]);
 
-  // Placeholder images for now. Can be fetched from backend later.
-  const galleryItems = [
-    { id: 1, category: 'Pizza', url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800' },
-    { id: 2, category: 'Burger', url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800' },
-    { id: 3, category: 'Interior', url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800' },
-    { id: 4, category: 'Broast', url: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=800' },
-    { id: 5, category: 'Shawarma', url: 'https://images.unsplash.com/photo-1646049247653-535d506992d9?w=800' },
-    { id: 6, category: 'Cafe', url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800' },
-  ];
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const { data } = await axios.get('http://localhost:5000/api/public/gallery');
+        setCategoriesList(data);
+      } catch (err) {
+        toast.error('Failed to load gallery');
+      }
+    };
+    fetchGallery();
+  }, []);
 
-  const categories = ['All', 'Pizza', 'Burger', 'Broast', 'Shawarma', 'Interior', 'Cafe'];
+  const categories = ['All', 'General', 'Restaurant Interior', 'Kitchen', 'Events'];
 
-  const filteredItems = activeTab === 'All' 
-    ? galleryItems 
-    : galleryItems.filter(item => item.category === activeTab);
+  const filteredCategories = activeTab === 'All' 
+    ? categoriesList 
+    : categoriesList.filter(cat => cat.section === activeTab);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
@@ -49,61 +55,35 @@ const Gallery = () => {
           ))}
         </div>
 
-        {/* Masonry-style Grid */}
-        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {/* Grid of Categories */}
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
-            {filteredItems.map((item) => (
+            {filteredCategories.map((cat) => (
               <motion.div
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
-                key={item.id}
-                className="relative group rounded-3xl overflow-hidden cursor-pointer aspect-square shadow-sm hover:shadow-xl transition-shadow"
-                onClick={() => setSelectedImage(item.url)}
+                key={cat._id}
+                className="relative rounded-3xl overflow-hidden aspect-square md:aspect-video shadow-md hover:shadow-xl transition-shadow bg-gray-100 group"
               >
-                <img src={item.url} alt={item.category} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <ZoomIn className="w-12 h-12 text-white" />
-                </div>
-                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-secondary">
-                  {item.category}
+                {cat.images && cat.images.length > 0 ? (
+                  <ImageSlider images={cat.images} interval={3000 + Math.random() * 2000} />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                )}
+                
+                {/* Overlay with Section Name */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 pt-12 z-20 pointer-events-none">
+                  <h3 className="text-xl md:text-2xl font-bold text-white tracking-wide">{cat.section}</h3>
+                  <p className="text-white/80 text-sm mt-1">{cat.images?.length || 0} {(cat.images?.length === 1) ? 'Image' : 'Images'}</p>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
       </div>
-
-      {/* Lightbox */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
-            onClick={() => setSelectedImage(null)}
-          >
-            <button 
-              className="absolute top-6 right-6 text-white bg-white/20 hover:bg-white/40 p-2 rounded-full backdrop-blur transition-colors"
-              onClick={() => setSelectedImage(null)}
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <motion.img 
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              src={selectedImage} 
-              alt="Enlarged" 
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()} 
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

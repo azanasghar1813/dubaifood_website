@@ -90,15 +90,19 @@ const Checkout = () => {
     try {
       // 1. Save to Backend Database for Admin Panel
       const orderData = {
-        orderItems: cartItems,
-        shippingAddress: { ...formData, area: formData.city }, // Map to existing schema
-        paymentMethod: 'Cash on Delivery',
-        itemsPrice: subtotal,
-        deliveryFee,
-        totalPrice: total
+        customerName: formData.fullName,
+        phone: formData.phone,
+        address: formData.deliveryType === 'Delivery' ? `${formData.address}, ${formData.landmark ? formData.landmark + ', ' : ''}${formData.city}` : 'Pickup',
+        items: cartItems.map(item => ({
+          name: item.name,
+          qty: item.qty,
+          price: item.price,
+          size: item.size
+        })),
+        totalAmount: total
       };
 
-      await axios.post('https://dubaifood.onrender.com/api/orders', orderData);
+      await axios.post('http://localhost:5000/api/public/orders', orderData);
       
       // 2. Redirect to WhatsApp
       const whatsappUrl = generateWhatsAppMessage();

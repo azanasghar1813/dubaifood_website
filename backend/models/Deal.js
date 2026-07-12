@@ -1,15 +1,17 @@
 const mongoose = require('mongoose');
 
-const dealSchema = mongoose.Schema({
-  dealNumber: { type: String, required: true, unique: true }, // e.g., 'Deal #1'
+const dealSchema = new mongoose.Schema({
+  dealNumber: { type: String, required: true },
   name: { type: String },
-  description: { type: String },
   price: { type: Number, required: true },
-  originalPrice: { type: Number }, // To calculate savings
-  image: { type: String, default: 'default_deal_image.jpg' },
   includedItems: [{ type: String }],
-  isAvailable: { type: Boolean, default: true }
+  image: { type: String }, // Keep for backward compatibility
+  imagePublicId: { type: String },
+  images: [{
+    url: { type: String },
+    publicId: { type: String }
+  }],
+  isFeatured: { type: Boolean, default: false }
 }, { timestamps: true });
 
-const Deal = mongoose.model('Deal', dealSchema);
-module.exports = Deal;
+module.exports = mongoose.model('Deal', dealSchema);

@@ -4,7 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 
 // Connect to MongoDB
-// connectDB();
+connectDB();
 
 const app = express();
 
@@ -13,10 +13,8 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/products', require('./routes/productRoutes'));
-app.use('/api/deals', require('./routes/dealRoutes'));
-// app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/public', require('./routes/publicRoutes'));
 
 app.get('/', (req, res) => {
   res.send('Dubai Fast Food API is running...');

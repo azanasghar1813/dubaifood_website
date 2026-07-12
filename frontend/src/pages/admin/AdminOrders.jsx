@@ -1,115 +1,118 @@
-import React from 'react';
-import { Search, Filter, Eye, Edit, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Eye, CheckCircle, Clock } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const API_URL = 'http://localhost:5000/api';
 
 const AdminOrders = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/admin/orders`);
+      setOrders(res.data);
+    } catch (err) {
+      toast.error('Failed to load orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Orders Management</h1>
-          <p className="text-gray-500 mt-1">View and manage customer orders</p>
-        </div>
-        <div className="flex gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search order ID..." 
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-            />
-          </div>
-          <button className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
-            <Filter size={18} />
-            <span>Filter</span>
-          </button>
-        </div>
-      </div>
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Order History</h1>
+      <p className="text-gray-500 mb-8">View and manage customer orders.</p>
 
-      {/* Tabs */}
-      <div className="flex gap-4 border-b border-gray-200 mb-6">
-        {['All Orders', 'Pending', 'Preparing', 'Out for Delivery', 'Completed'].map((tab, idx) => (
-          <button 
-            key={idx}
-            className={`pb-4 px-2 font-medium text-sm transition-colors relative ${
-              idx === 0 ? 'text-primary' : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            {tab}
-            {idx === 0 && (
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-t-full"></span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Orders Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-gray-50 text-gray-500 text-sm border-b border-gray-100">
+            <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="py-4 px-6 font-medium">Order ID</th>
-                <th className="py-4 px-6 font-medium">Date & Time</th>
-                <th className="py-4 px-6 font-medium">Customer</th>
-                <th className="py-4 px-6 font-medium">Total</th>
-                <th className="py-4 px-6 font-medium">Status</th>
-                <th className="py-4 px-6 font-medium text-right">Actions</th>
+                <th className="py-4 px-6 text-sm font-bold text-gray-700">Order ID</th>
+                <th className="py-4 px-6 text-sm font-bold text-gray-700">Customer</th>
+                <th className="py-4 px-6 text-sm font-bold text-gray-700">Date</th>
+                <th className="py-4 px-6 text-sm font-bold text-gray-700">Total</th>
+                <th className="py-4 px-6 text-sm font-bold text-gray-700">Status</th>
+                <th className="py-4 px-6 text-sm font-bold text-gray-700">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {[
-                { id: '#ORD-001', date: 'Today, 2:30 PM', name: 'Ali Khan', total: 3450, status: 'Preparing' },
-                { id: '#ORD-002', date: 'Today, 1:15 PM', name: 'Sara Ahmed', total: 1050, status: 'Completed' },
-                { id: '#ORD-003', date: 'Today, 12:45 PM', name: 'Usman Ali', total: 5600, status: 'Pending' },
-                { id: '#ORD-004', date: 'Yesterday, 8:20 PM', name: 'Ayesha Bibi', total: 2200, status: 'Out for Delivery' },
-                { id: '#ORD-005', date: 'Yesterday, 7:10 PM', name: 'Zainab Noor', total: 1800, status: 'Completed' },
-              ].map((order, i) => (
-                <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-6 font-medium text-gray-900">{order.id}</td>
-                  <td className="py-4 px-6 text-gray-500 text-sm">{order.date}</td>
-                  <td className="py-4 px-6 text-gray-600">{order.name}</td>
-                  <td className="py-4 px-6 font-semibold text-gray-900">Rs. {order.total}</td>
+            <tbody className="divide-y divide-gray-50">
+              {loading ? (
+                <tr><td colSpan="6" className="py-4 px-6 text-center text-gray-500">Loading orders...</td></tr>
+              ) : orders.map((order) => (
+                <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="py-4 px-6 text-sm font-mono text-gray-600">#{order._id.substring(order._id.length - 6).toUpperCase()}</td>
                   <td className="py-4 px-6">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium
-                      ${order.status === 'Completed' ? 'bg-green-100 text-green-700' : 
-                        order.status === 'Preparing' ? 'bg-blue-100 text-blue-700' : 
-                        order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 
-                        'bg-purple-100 text-purple-700'}
-                    `}>
-                      {order.status}
+                    <p className="font-bold text-gray-900">{order.customerName}</p>
+                    <p className="text-xs text-gray-500">{order.phone}</p>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-gray-600">
+                    {new Date(order.createdAt).toLocaleString()}
+                  </td>
+                  <td className="py-4 px-6 font-bold text-gray-900">Rs. {order.totalAmount}</td>
+                  <td className="py-4 px-6">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <Clock size={12} /> Pending
                     </span>
                   </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button className="p-2 text-gray-400 hover:text-primary bg-gray-50 hover:bg-primary/10 rounded-lg transition-colors">
-                        <Eye size={16} />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors">
-                        <Edit size={16} />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-red-600 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                  <td className="py-4 px-6">
+                    <button 
+                      onClick={() => setSelectedOrder(order)}
+                      className="text-primary hover:text-yellow-600 p-2 rounded-lg hover:bg-yellow-50 transition-colors"
+                    >
+                      <Eye size={20} />
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        
-        {/* Pagination */}
-        <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
-          <div>Showing 1 to 5 of 42 entries</div>
-          <div className="flex gap-1">
-            <button className="px-3 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50">Prev</button>
-            <button className="px-3 py-1 bg-primary text-secondary rounded font-medium">1</button>
-            <button className="px-3 py-1 border border-gray-200 rounded hover:bg-gray-50">2</button>
-            <button className="px-3 py-1 border border-gray-200 rounded hover:bg-gray-50">3</button>
-            <button className="px-3 py-1 border border-gray-200 rounded hover:bg-gray-50">Next</button>
+      </div>
+
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-4">Order Details</h2>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500">Customer</p>
+                <p className="font-bold">{selectedOrder.customerName}</p>
+                <p>{selectedOrder.phone}</p>
+                <p className="text-gray-600">{selectedOrder.address}</p>
+              </div>
+              <div className="border-t border-gray-100 pt-4">
+                <p className="text-sm text-gray-500 mb-2">Items</p>
+                <ul className="space-y-2">
+                  {selectedOrder.items.map((item, idx) => (
+                    <li key={idx} className="flex justify-between items-center text-sm">
+                      <span>{item.qty}x {item.name} {item.size && `(${item.size})`}</span>
+                      <span className="font-bold">Rs. {item.price * item.qty}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="border-t border-gray-100 pt-4 flex justify-between items-center text-lg font-bold">
+                <span>Total Amount:</span>
+                <span className="text-primary">Rs. {selectedOrder.totalAmount}</span>
+              </div>
+            </div>
+            <button 
+              onClick={() => setSelectedOrder(null)}
+              className="mt-6 w-full bg-gray-100 text-gray-800 font-bold py-2 rounded-lg hover:bg-gray-200"
+            >
+              Close
+            </button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

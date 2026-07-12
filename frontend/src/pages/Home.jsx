@@ -1,8 +1,40 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, Clock, MapPin, Phone } from 'lucide-react';
+import axios from 'axios';
+import ImageSlider from '../components/ImageSlider';
 
 const Home = () => {
+  const [settings, setSettings] = useState({ announcementText: "✅ FREE DELIVERY ABOVE RS.1500", heroImage: "" });
+  const [featuredDeals, setFeaturedDeals] = useState([]);
+  const [featuredItems, setFeaturedItems] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [settingsRes, dealsRes, itemsRes, catsRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/public/settings'),
+          axios.get('http://localhost:5000/api/public/deals'),
+          axios.get('http://localhost:5000/api/public/featured'),
+          axios.get('http://localhost:5000/api/public/categories/home')
+        ]);
+        if (settingsRes.data) setSettings(settingsRes.data);
+        if (dealsRes.data) {
+          const featured = dealsRes.data.filter(d => d.isFeatured);
+          setFeaturedDeals(featured);
+        }
+        if (itemsRes.data) setFeaturedItems(itemsRes.data.slice(0, 6)); // Show top 6 items
+        if (catsRes.data) setCategories(catsRes.data);
+
+      } catch (err) {
+        console.error("Failed to fetch data");
+      }
+    };
+    fetchData();
+  }, []);
+
   // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -20,20 +52,7 @@ const Home = () => {
     transition: { duration: 6, repeat: Infinity, ease: "easeInOut" }
   };
 
-  const categories = [
-    { name: 'Burgers', icon: '🍔', desc: 'Juicy & Crispy', link: '/menu' },
-    { name: 'Pizza', icon: '🍕', desc: 'Loaded with Cheese', link: '/menu' },
-    { name: 'Broast', icon: '🍗', desc: 'Spicy & Crunchy', link: '/menu' },
-    { name: 'Shawarma', icon: '🌯', desc: 'Authentic Taste', link: '/menu' },
-    { name: 'Fries', icon: '🍟', desc: 'Loaded Fries', link: '/menu' },
-    { name: 'Drinks', icon: '🥤', desc: 'Chilled Beverages', link: '/menu' }
-  ];
 
-  const featuredDeals = [
-    { title: 'Family Fiesta', oldPrice: 3000, newPrice: 2499, items: '2 Zinger Burgers, Large Pizza, Large Fries, 1.5L Drink', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800' },
-    { title: 'Student Deal', oldPrice: 1200, newPrice: 899, items: 'Zinger Burger, Reg Fries, Reg Drink', image: 'https://images.unsplash.com/photo-1594212691516-436fba72f057?w=800' },
-    { title: 'Pizza Party', oldPrice: 4000, newPrice: 3299, items: '2 Large Premium Pizzas, 1.5L Drink', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800' },
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50 overflow-hidden">
@@ -41,7 +60,10 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative bg-secondary text-white pt-8 pb-16 lg:pt-16 lg:pb-24 overflow-hidden flex items-center min-h-[80vh]">
         {/* Background Image with Overlay */}
-        <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070')] bg-cover bg-center" />
+        <div 
+          className="absolute inset-0 opacity-30 bg-cover bg-center" 
+          style={{ backgroundImage: `url('${settings.heroImage || "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070"}')` }}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/80 to-transparent" />
         
         {/* Abstract shapes for wow factor */}
@@ -104,15 +126,16 @@ const Home = () => {
       <div className="bg-accent text-white py-2 md:py-3 overflow-hidden relative z-30 shadow-lg border-y-2 border-white/10">
         <div className="animate-marquee-ltr flex items-center">
           {[...Array(15)].map((_, i) => (
-            <span key={i} className="mx-4 md:mx-8 font-bold text-sm sm:text-base md:text-lg whitespace-nowrap tracking-wider">
-              ✅ FREE DELIVERY ABOVE RS.1500
+            <span key={i} className="mx-4 md:mx-8 font-bold text-sm sm:text-base md:text-lg whitespace-nowrap tracking-wider uppercase">
+              ✅ {settings.announcementText || "FREE DELIVERY ABOVE RS.1500"}
             </span>
           ))}
         </div>
       </div>
 
       {/* Featured Categories */}
-      <section className="py-20 lg:py-24 container mx-auto px-4 relative z-20">
+      {categories.length > 0 && (
+        <section className="py-20 lg:py-24 container mx-auto px-4 relative z-20">
         <div className="flex justify-between items-end mb-10">
           <div>
             <h2 className="text-primary font-bold tracking-widest uppercase mb-2 text-sm md:text-base">Explore Menu</h2>
@@ -138,7 +161,7 @@ const Home = () => {
                 className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl transition-all duration-300 group text-center h-full flex flex-col justify-center items-center"
               >
                 <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-50 rounded-full mb-4 flex items-center justify-center text-4xl group-hover:scale-110 group-hover:bg-primary/10 transition-transform duration-300">
-                  {cat.icon}
+                  {cat.image ? <img src={cat.image} alt={cat.name} className="w-full h-full object-cover rounded-full" /> : cat.icon}
                 </div>
                 <h4 className="text-lg font-black text-gray-900 mb-1">{cat.name}</h4>
                 <p className="text-gray-500 text-xs font-medium">{cat.desc}</p>
@@ -147,9 +170,11 @@ const Home = () => {
           ))}
         </motion.div>
       </section>
+      )}
 
       {/* Featured Deals */}
-      <section className="py-20 bg-white border-y border-gray-100">
+      {featuredDeals.length > 0 && (
+        <section className="py-20 bg-white border-y border-gray-100">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-accent font-bold tracking-widest uppercase mb-2 text-sm">Save Big</h2>
@@ -159,32 +184,36 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredDeals.map((deal, idx) => (
               <motion.div 
-                key={idx}
+                key={deal._id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
                 className="card group"
               >
-                <div className="relative h-64 overflow-hidden">
-                  <img src={deal.image} alt={deal.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <div className="relative h-64 overflow-hidden bg-yellow-50 flex items-center justify-center">
+                  {deal.image ? (
+                    <img src={deal.image} alt={deal.dealNumber} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  ) : (
+                    <span className="text-6xl">🔥</span>
+                  )}
                   <div className="absolute top-4 left-4 bg-accent text-white font-black px-4 py-1 rounded-full shadow-lg transform -rotate-3">
-                    Save Rs. {deal.oldPrice - deal.newPrice}
+                    Featured
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 right-4">
-                    <h4 className="text-2xl font-black text-white mb-1">{deal.title}</h4>
-                    <p className="text-gray-300 text-sm line-clamp-2">{deal.items}</p>
+                    <h4 className="text-2xl font-black text-white mb-1">{deal.dealNumber}</h4>
+                    <p className="text-gray-300 text-sm line-clamp-2">{(deal.includedItems || []).join(', ')}</p>
                   </div>
                 </div>
                 <div className="p-6 bg-white">
                   <div className="flex justify-between items-center mb-6">
                     <div>
-                      <span className="text-gray-400 line-through text-sm font-medium">Rs. {deal.oldPrice}</span>
-                      <div className="text-3xl font-black text-primary">Rs. {deal.newPrice}</div>
+                      {deal.name && <span className="text-gray-400 text-sm font-medium">{deal.name}</span>}
+                      <div className="text-3xl font-black text-primary">Rs. {deal.price}</div>
                     </div>
                   </div>
-                  <Link to="/menu" className="btn-primary w-full py-4 text-lg justify-center shadow-lg shadow-primary/20">
+                  <Link to="/deals" className="btn-primary w-full py-4 text-lg justify-center shadow-lg shadow-primary/20">
                     Order Deal Now
                   </Link>
                 </div>
@@ -193,6 +222,51 @@ const Home = () => {
           </div>
         </div>
       </section>
+      )}
+
+      {/* Featured Items */}
+      {featuredItems.length > 0 && (
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-accent font-bold tracking-widest uppercase mb-2 text-sm">Chef's Special</h2>
+              <h3 className="text-3xl md:text-5xl font-black text-secondary">Featured Items</h3>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+              {featuredItems.map((item, idx) => (
+                <motion.div 
+                  key={item._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full"
+                >
+                  <div className="h-32 md:h-40 bg-gray-100 rounded-2xl mb-4 overflow-hidden relative">
+                    {(item.images && item.images.length > 0) ? (
+                      <ImageSlider images={item.images} interval={2500 + Math.random() * 2000} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                    )}
+                  </div>
+                  <div className="flex-1 flex flex-col text-center">
+                    <h4 className="text-lg font-black text-gray-900 leading-tight mb-2">{item.name}</h4>
+                    {item.description && <p className="text-xs text-gray-500 line-clamp-2 mb-3">{item.description}</p>}
+                    {item.price && (
+                      <div className="mt-auto">
+                        <span className="inline-block bg-primary/10 text-primary font-black px-3 py-1 rounded-lg text-sm">
+                          Rs. {item.price}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Why Choose Us & Location */}
       <section id="location" className="py-24 bg-gray-50">

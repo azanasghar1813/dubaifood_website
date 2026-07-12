@@ -4,18 +4,11 @@ import { useDispatch } from 'react-redux';
 import { addToCart } from '../redux/cartSlice';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, Plus } from 'lucide-react';
+import { Search, SlidersHorizontal, Plus, X } from 'lucide-react';
+import ImageSlider from '../components/ImageSlider';
 
-const superCategories = [
-  { id: 'fastfood', label: '🍔 Fast Food & Pizza', categories: ['Pizza', 'Premium Pizza', 'Square Pizza', 'Burgers', 'Pratha Rolls', 'Special Rolls', 'Pasta', 'Appetizers', 'Sandwich', 'Shawarma', 'Starters', 'Soups', 'Broast'] },
-  { id: 'desi', label: '🍗 Desi & Bar B-Q', categories: ['Mutton', 'Beef', 'Bar B-Q', 'Tandoor', 'Salads', 'Chicken'] },
-  { id: 'chinese', label: '🍜 Chinese & Rice', categories: ['Rices', 'Chinies Gravy', 'Noodles'] },
-  { id: 'drinks', label: '🍹 Drinks & Desserts', categories: ['Special Drinks', 'Hot & Cold', 'Special Ice Cream Flavors'] }
-];
 
-const filtersList = ['All', 'Spicy', 'Veg', 'Chicken', 'Beef'];
-
-const MenuItemCard = ({ item, activeTab, handleAddToCart }) => {
+const MenuItemCard = ({ item, activeTab, handleAddToCart, setSelectedItemForModal }) => {
   const [selectedSize, setSelectedSize] = useState(item.sizes?.length ? item.sizes[0] : null);
   const priceToDisplay = selectedSize ? selectedSize.price : item.price;
 
@@ -26,12 +19,23 @@ const MenuItemCard = ({ item, activeTab, handleAddToCart }) => {
     >
       <div className="p-3 md:p-5 flex-grow">
         <div className="h-28 md:h-48 bg-gray-50 rounded-xl md:rounded-2xl mb-3 md:mb-5 flex items-center justify-center text-4xl md:text-6xl overflow-hidden relative border border-gray-100">
-          {activeTab === 'fastfood' && '🍔'}
-          {activeTab === 'desi' && '🍲'}
-          {activeTab === 'chinese' && '🍜'}
-          {activeTab === 'drinks' && '🥤'}
+          {(item.images && item.images.length > 0) ? (
+            <ImageSlider images={item.images} interval={2500 + Math.random() * 2000} />
+          ) : item.image ? (
+            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+          ) : (
+            <>
+              {activeTab === 'fastfood' && '🍔'}
+              {activeTab === 'desi' && '🍲'}
+              {activeTab === 'chinese' && '🍜'}
+              {activeTab === 'drinks' && '🥤'}
+            </>
+          )}
           
-          <div className="absolute inset-0 bg-secondary/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm duration-300">
+          <div 
+            className="absolute inset-0 bg-secondary/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm duration-300 cursor-pointer"
+            onClick={() => setSelectedItemForModal(item)}
+          >
             <span className="text-secondary bg-primary px-4 py-2 rounded-full font-bold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
               View Details
             </span>
@@ -83,16 +87,31 @@ const MenuItemCard = ({ item, activeTab, handleAddToCart }) => {
 const Menu = () => {
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('fastfood');
+  const [superCategories, setSuperCategories] = useState([]);
+  const [filtersList, setFiltersList] = useState([{name: 'All'}]);
+  const [activeTab, setActiveTab] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+  const [selectedItemForModal, setSelectedItemForModal] = useState(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const { data } = await axios.get('https://dubaifood.onrender.com/api/products');
-        setMenuData(data);
+        const [menuRes, filtersRes, catsRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/public/menuitems'),
+          axios.get('http://localhost:5000/api/public/filters'),
+          axios.get('http://localhost:5000/api/public/categories/menu')
+        ]);
+        setMenuData(menuRes.data);
+        if (catsRes.data && catsRes.data.length > 0) {
+          setSuperCategories(catsRes.data);
+          setActiveTab(catsRes.data[0].id);
+        }
+        if (filtersRes.data) {
+          const fetchedFilters = filtersRes.data.filter(f => f.name !== 'All');
+          setFiltersList([{name: 'All'}, ...fetchedFilters]);
+        }
       } catch (error) {
         toast.error('Failed to load menu');
       } finally {
@@ -111,7 +130,18 @@ const Menu = () => {
     let activeSuperCategory = superCategories.find(c => c.id === activeTab);
     if (!activeSuperCategory) return [];
 
-    let processedData = menuData.filter(group => activeSuperCategory.categories.includes(group.category.name));
+    // Group products by their categories
+    const groupedProducts = {};
+    menuData.forEach(product => {
+      if (activeSuperCategory.categories.includes(product.category)) {
+        if (!groupedProducts[product.category]) {
+          groupedProducts[product.category] = { category: { name: product.category, _id: product.category }, items: [] };
+        }
+        groupedProducts[product.category].items.push(product);
+      }
+    });
+
+    let processedData = Object.values(groupedProducts);
 
     return processedData.map(group => {
       let filteredItems = group.items;
@@ -121,9 +151,12 @@ const Menu = () => {
         filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
       }
 
-      // Apply Filters (Simulated logic based on name since we don't have tags in db right now)
+      // Apply Filter Tags
       if (activeFilter !== 'All') {
-        filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(activeFilter.toLowerCase()) || (item.description && item.description.toLowerCase().includes(activeFilter.toLowerCase())));
+        filteredItems = filteredItems.filter(item => 
+          item.tags?.some(tag => tag.toLowerCase() === activeFilter.toLowerCase()) ||
+          item.name.toLowerCase().includes(activeFilter.toLowerCase())
+        );
       }
 
       return { ...group, items: filteredItems };
@@ -167,35 +200,39 @@ const Menu = () => {
             <div className="flex items-center gap-2 text-gray-500 font-bold px-3 border-r border-gray-200 shrink-0">
               <SlidersHorizontal className="w-5 h-5" /> Filters
             </div>
-            {filtersList.map(filter => (
-              <button 
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`shrink-0 px-5 py-2 rounded-xl text-sm font-bold transition-all ${activeFilter === filter ? 'bg-secondary text-primary shadow-md' : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'}`}
-              >
-                {filter}
-              </button>
-            ))}
+            <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x">
+              {filtersList.map(filter => (
+                <button 
+                  key={filter.name}
+                  onClick={() => setActiveFilter(filter.name)}
+                  className={`snap-center shrink-0 px-4 py-2 rounded-full font-bold text-sm transition-colors shadow-sm ${activeFilter === filter.name ? 'bg-primary text-secondary' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                >
+                  {filter.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4">
         {/* Sticky Tabs Navbar */}
-        <div className="bg-white rounded-xl md:rounded-2xl shadow-sm p-1 md:p-2 mb-8 md:mb-12 flex gap-1 md:gap-2 overflow-x-auto hide-scrollbar sticky top-16 md:top-20 z-30 border border-gray-100">
-          {superCategories.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setSearchQuery(''); }}
-              className={`shrink-0 md:flex-1 whitespace-nowrap px-4 py-2.5 md:px-6 md:py-4 rounded-lg md:rounded-xl text-xs md:text-base font-bold transition-all duration-300 ${
-                activeTab === tab.id
-                  ? 'bg-primary text-secondary shadow-md'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex justify-center mb-8 md:mb-12">
+          <div className="inline-flex bg-white rounded-full shadow-sm p-1.5 border border-gray-100 overflow-x-auto hide-scrollbar max-w-full">
+            {superCategories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => { setActiveTab(category.id); setSearchQuery(''); }}
+                className={`whitespace-nowrap px-6 py-2.5 md:px-8 md:py-3 rounded-full text-sm md:text-base font-bold transition-all duration-300 ${
+                  activeTab === category.id
+                    ? 'bg-primary text-secondary shadow-md scale-105'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Menu Content */}
@@ -234,7 +271,8 @@ const Menu = () => {
                         key={item._id} 
                         item={item} 
                         activeTab={activeTab} 
-                        handleAddToCart={handleAddToCart} 
+                        handleAddToCart={handleAddToCart}
+                        setSelectedItemForModal={setSelectedItemForModal} 
                       />
                     ))}
                   </div>
@@ -244,6 +282,82 @@ const Menu = () => {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Item Details Modal */}
+      <AnimatePresence>
+        {selectedItemForModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedItemForModal(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row z-10 max-h-[90vh]"
+            >
+              <button 
+                onClick={() => setSelectedItemForModal(null)}
+                className="absolute top-4 right-4 z-20 bg-white/80 backdrop-blur text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors shadow-sm"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="w-full md:w-1/2 h-64 md:h-auto bg-gray-100 relative">
+                {(selectedItemForModal.images && selectedItemForModal.images.length > 0) ? (
+                  <ImageSlider images={selectedItemForModal.images} interval={3000} />
+                ) : selectedItemForModal.image ? (
+                  <img src={selectedItemForModal.image} alt={selectedItemForModal.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-8xl bg-gray-50">🍔</div>
+                )}
+              </div>
+
+              <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col overflow-y-auto">
+                <div className="mb-6">
+                  <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 leading-tight">{selectedItemForModal.name}</h2>
+                  <div className="inline-block bg-primary/10 text-primary font-bold px-3 py-1 rounded-full text-sm mb-4">
+                    {selectedItemForModal.category}
+                  </div>
+                  {selectedItemForModal.description ? (
+                    <p className="text-gray-600 text-sm md:text-base leading-relaxed">{selectedItemForModal.description}</p>
+                  ) : (
+                    <p className="text-gray-400 italic text-sm">No description available for this item.</p>
+                  )}
+                </div>
+
+                <div className="mt-auto pt-6 border-t border-gray-100">
+                  <div className="flex items-end justify-between mb-6">
+                    <div>
+                      <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Starting at</p>
+                      <p className="text-3xl font-black text-accent">
+                        Rs. {selectedItemForModal.sizes?.length ? selectedItemForModal.sizes[0].price : selectedItemForModal.price}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      handleAddToCart(selectedItemForModal, selectedItemForModal.sizes?.length ? selectedItemForModal.sizes[0] : null, selectedItemForModal.sizes?.length ? selectedItemForModal.sizes[0].price : selectedItemForModal.price);
+                      setSelectedItemForModal(null);
+                    }}
+                    className="w-full bg-primary text-secondary font-black py-4 rounded-xl flex justify-center items-center gap-2 hover:bg-yellow-400 transition-colors shadow-lg shadow-primary/20"
+                  >
+                    <Plus size={20} /> Add to Cart (Quick Add)
+                  </button>
+                  <p className="text-center text-xs text-gray-400 mt-4">
+                    To select specific sizes, close this and use the options on the menu card.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

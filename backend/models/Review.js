@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
-const reviewSchema = mongoose.Schema({
-  customerName: { type: String, required: true },
-  rating: { type: Number, required: true, min: 1, max: 5 },
+const reviewSchema = new mongoose.Schema({
+  name: { type: String, required: true },
   comment: { type: String, required: true },
-  isApproved: { type: Boolean, default: false }, // Only approved reviews show on site
-  date: { type: Date, default: Date.now }
+  rating: { type: Number, required: true, default: 5 },
+  status: { type: String, default: 'Pending' } // Pending, Approved
 }, { timestamps: true });
 
 module.exports = mongoose.model('Review', reviewSchema);

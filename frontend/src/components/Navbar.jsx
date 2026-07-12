@@ -38,14 +38,16 @@ const Navbar = () => {
     <>
       <nav className="glass sticky top-0 z-40 transition-all duration-300 border-b border-gray-100">
         <div className="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
-          <Link to="/" className="text-base sm:text-xl lg:text-2xl font-black text-secondary flex items-center gap-2 tracking-tight">
-            <div className="bg-primary text-secondary p-1.5 rounded-lg flex items-center justify-center shrink-0">
+          <Link to="/" className="flex items-center gap-2 lg:gap-3">
+            <div className="bg-primary text-secondary p-2 rounded-xl flex items-center justify-center shrink-0 text-xl lg:text-3xl shadow-sm">
               🍔
             </div>
-            <div className="leading-tight sm:leading-none mt-1 sm:mt-0">
-              Dubai <span className="text-primary">Fast Food</span>
-              <span className="block sm:inline text-[10px] sm:text-xl lg:text-2xl text-gray-500 sm:text-secondary font-bold sm:font-black uppercase sm:normal-case tracking-widest sm:tracking-tight sm:ml-1.5">
-                and Cafe
+            <div className="flex flex-col">
+              <span className="text-sm sm:text-xl lg:text-2xl font-black text-secondary leading-none">
+                Dubai <span className="text-primary">Fast Food</span>
+              </span>
+              <span className="text-[10px] sm:text-sm font-bold text-gray-500 tracking-widest uppercase leading-none mt-1">
+                & Cafe
               </span>
             </div>
           </Link>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../redux/cartSlice';
 import toast from 'react-hot-toast';
+import ImageSlider from '../components/ImageSlider';
 
 const Deals = () => {
   const [deals, setDeals] = useState([]);
@@ -12,7 +13,7 @@ const Deals = () => {
   useEffect(() => {
     const fetchDeals = async () => {
       try {
-        const { data } = await axios.get('https://dubaifood.onrender.com/api/deals');
+        const { data } = await axios.get('http://localhost:5000/api/public/deals');
         setDeals(data);
       } catch (error) {
         toast.error('Failed to load deals');
@@ -42,8 +43,14 @@ const Deals = () => {
               {deal.dealNumber}
             </div>
             
-            <div className="h-24 md:h-40 bg-yellow-50 rounded-lg md:rounded-xl mb-2 md:mb-4 mt-6 flex items-center justify-center text-3xl md:text-5xl">
-              🔥
+            <div className="h-24 md:h-40 bg-yellow-50 rounded-lg md:rounded-xl mb-2 md:mb-4 mt-6 flex items-center justify-center text-3xl md:text-5xl overflow-hidden relative">
+              {(deal.images && deal.images.length > 0) ? (
+                <ImageSlider images={deal.images} interval={2500 + Math.random() * 2000} />
+              ) : deal.image ? (
+                <img src={deal.image} alt={deal.dealNumber} className="w-full h-full object-cover" />
+              ) : (
+                '🔥'
+              )}
             </div>
             
             <div className="flex-grow">

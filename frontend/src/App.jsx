@@ -20,10 +20,12 @@ import Contact from './pages/Contact';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOrders from './pages/admin/AdminOrders';
-import AdminProducts from './pages/admin/AdminProducts';
+import AdminMenuItems from './pages/admin/AdminMenuItems';
 import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminDeals from './pages/admin/AdminDeals';
+import AdminFeatured from './pages/admin/AdminFeatured';
+import AdminCategories from './pages/admin/AdminCategories';
 import AdminGallery from './pages/admin/AdminGallery';
 import AdminReviews from './pages/admin/AdminReviews';
 
@@ -46,10 +48,12 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="orders" element={<AdminOrders />} />
-          <Route path="products" element={<AdminProducts />} />
+          <Route path="menu-items" element={<AdminMenuItems />} />
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="deals" element={<AdminDeals />} />
+          <Route path="featured" element={<AdminFeatured />} />
+          <Route path="categories" element={<AdminCategories />} />
           <Route path="gallery" element={<AdminGallery />} />
           <Route path="reviews" element={<AdminReviews />} />
         </Route>

@@ -1,16 +1,26 @@
+import { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const Reviews = () => {
-  // Static reviews for now
-  const reviews = [
-    { id: 1, name: 'Ali Khan', rating: 5, date: '2 days ago', text: 'Best zinger burger in Chowk Azam! The crunch was amazing and the delivery was super fast.' },
-    { id: 2, name: 'Fatima Z.', rating: 5, date: '1 week ago', text: 'Loved their Special Crown Crust Pizza. Highly recommend it to everyone looking for premium taste.' },
-    { id: 3, name: 'Usman R.', rating: 4, date: '2 weeks ago', text: 'Good food and nice ambiance. The family deal is totally worth the price.' },
-    { id: 4, name: 'Ayesha M.', rating: 5, date: '1 month ago', text: 'Extremely professional service. The WhatsApp ordering is so seamless. Less mistakes, perfect delivery.' },
-    { id: 5, name: 'Bilal Ahmed', rating: 5, date: '1 month ago', text: 'Mutton karahi was authentic. Perfect blend of spices. Will definitely order again.' },
-    { id: 6, name: 'Sara Q.', rating: 4, date: '2 months ago', text: 'Fries were a bit cold, but the Shawarma was 10/10.' },
-  ];
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const { data } = await axios.get('http://localhost:5000/api/public/reviews');
+        setReviews(data);
+      } catch (err) {
+        toast.error('Failed to load reviews');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, []);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
@@ -57,7 +67,7 @@ const Reviews = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reviews.map((review, idx) => (
             <motion.div 
-              key={review.id}
+              key={review._id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -71,13 +81,15 @@ const Reviews = () => {
                       <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-primary' : 'text-gray-300'}`} />
                     ))}
                   </div>
-                  <span className="text-xs text-gray-400 font-medium">{review.date}</span>
+                  <span className="text-xs text-gray-400 font-medium">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
-                <p className="text-gray-700 leading-relaxed mb-6 italic">"{review.text}"</p>
+                <p className="text-gray-700 leading-relaxed mb-6 italic">"{review.comment}"</p>
               </div>
               <div className="flex items-center gap-3 border-t border-gray-50 pt-4">
                 <div className="w-10 h-10 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center">
-                  {review.name.charAt(0)}
+                  {review.name.charAt(0).toUpperCase()}
                 </div>
                 <h4 className="font-bold text-gray-900">{review.name}</h4>
               </div>
