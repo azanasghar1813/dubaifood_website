@@ -181,7 +181,7 @@ const Menu = () => {
     const checkElements = setTimeout(() => {
       const sections = document.querySelectorAll('[id^="category-"]');
       sections.forEach((section) => observer.observe(section));
-    }, 100);
+    }, 500);
 
     return () => {
       clearTimeout(checkElements);
@@ -189,12 +189,14 @@ const Menu = () => {
     };
   }, [filteredMenuData, activeTab]);
 
-  const scrollToCategory = (categoryName) => {
+  const scrollToCategory = (categoryName, retries = 3) => {
     const el = document.getElementById(`category-${categoryName}`);
     if (el) {
       const yOffset = -120;
       const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
+    } else if (retries > 0) {
+      setTimeout(() => scrollToCategory(categoryName, retries - 1), 150);
     }
   };
 
