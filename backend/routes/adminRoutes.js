@@ -221,25 +221,51 @@ router.delete('/deals/:id', async (req, res) => {
 });
 
 // --- SETTINGS ---
-router.post('/settings', upload.single('heroImage'), async (req, res) => {
+router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { name: 'heroFloatingImage', maxCount: 1 }]), async (req, res) => {
   try {
     let settings = await Settings.findOne();
     if (!settings) {
       settings = new Settings();
     }
 
-    if (req.body.announcementText) {
+    if (req.body.announcementText !== undefined) {
       settings.announcementText = req.body.announcementText;
     }
 
-    if (req.file) {
-      // Delete old hero image if exists
+    if (req.body.deleteHeroImage === 'true') {
       if (settings.heroImagePublicId) {
-        await cloudinary.uploader.destroy(settings.heroImagePublicId);
+        try { await cloudinary.uploader.destroy(settings.heroImagePublicId); } catch(e) { console.error("Error deleting image", e); }
       }
-      const result = await streamUpload(req.file.buffer, 'dubai_fast_food/settings');
-      settings.heroImage = result.secure_url;
-      settings.heroImagePublicId = result.public_id;
+      settings.heroImage = '';
+      settings.heroImagePublicId = '';
+    }
+
+    if (req.body.deleteHeroFloatingImage === 'true') {
+      if (settings.heroFloatingImagePublicId) {
+        try { await cloudinary.uploader.destroy(settings.heroFloatingImagePublicId); } catch(e) { console.error("Error deleting image", e); }
+      }
+      settings.heroFloatingImage = '';
+      settings.heroFloatingImagePublicId = '';
+    }
+
+    if (req.files) {
+      if (req.files.heroImage && req.files.heroImage[0]) {
+        if (settings.heroImagePublicId) {
+          try { await cloudinary.uploader.destroy(settings.heroImagePublicId); } catch(e) {}
+        }
+        const result = await streamUpload(req.files.heroImage[0].buffer, 'dubai_fast_food/settings');
+        settings.heroImage = result.secure_url;
+        settings.heroImagePublicId = result.public_id;
+      }
+
+      if (req.files.heroFloatingImage && req.files.heroFloatingImage[0]) {
+        if (settings.heroFloatingImagePublicId) {
+          try { await cloudinary.uploader.destroy(settings.heroFloatingImagePublicId); } catch(e) {}
+        }
+        const result = await streamUpload(req.files.heroFloatingImage[0].buffer, 'dubai_fast_food/settings');
+        settings.heroFloatingImage = result.secure_url;
+        settings.heroFloatingImagePublicId = result.public_id;
+      }
     }
 
     await settings.save();

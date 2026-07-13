@@ -6,7 +6,7 @@ import axios from 'axios';
 import ImageSlider from '../components/ImageSlider';
 
 const Home = () => {
-  const [settings, setSettings] = useState({ announcementText: "✅ FREE DELIVERY ABOVE RS.1500", heroImage: "" });
+  const [settings, setSettings] = useState({ announcementText: "✅ FREE DELIVERY ABOVE RS.1500", heroImage: "", heroFloatingImage: "" });
   const [featuredDeals, setFeaturedDeals] = useState([]);
   const [featuredItems, setFeaturedItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -112,7 +112,7 @@ const Home = () => {
             >
               <motion.img 
                 animate={floatAnimation} 
-                src="https://png.pngtree.com/png-clipart/20230427/original/pngtree-burger-food-snack-png-image_9115206.png"
+                src={settings.heroFloatingImage || "https://png.pngtree.com/png-clipart/20230427/original/pngtree-burger-food-snack-png-image_9115206.png"}
                 className="absolute top-20 right-0 w-[400px] drop-shadow-[0_30px_30px_rgba(0,0,0,0.5)] z-20"
                 alt="Delicious Burger"
               />
