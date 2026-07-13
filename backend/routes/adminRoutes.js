@@ -221,7 +221,7 @@ router.delete('/deals/:id', async (req, res) => {
 });
 
 // --- SETTINGS ---
-router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { name: 'heroFloatingImage', maxCount: 1 }]), async (req, res) => {
+router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { name: 'heroFloatingImages', maxCount: 10 }]), async (req, res) => {
   try {
     let settings = await Settings.findOne();
     if (!settings) {
@@ -248,6 +248,21 @@ router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { na
       settings.heroFloatingImagePublicId = '';
     }
 
+    if (req.body.heroFloatingImagesToDelete) {
+      const toDelete = JSON.parse(req.body.heroFloatingImagesToDelete);
+      for (const publicId of toDelete) {
+        if (publicId) {
+          try { await cloudinary.uploader.destroy(publicId); } catch(e) { console.error("Error deleting floating image", e); }
+          settings.heroFloatingImages = settings.heroFloatingImages.filter(img => img.publicId !== publicId);
+          // Also clear backward compatibility image if it matches
+          if (settings.heroFloatingImagePublicId === publicId) {
+            settings.heroFloatingImage = '';
+            settings.heroFloatingImagePublicId = '';
+          }
+        }
+      }
+    }
+
     if (req.files) {
       if (req.files.heroImage && req.files.heroImage[0]) {
         if (settings.heroImagePublicId) {
@@ -258,13 +273,11 @@ router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { na
         settings.heroImagePublicId = result.public_id;
       }
 
-      if (req.files.heroFloatingImage && req.files.heroFloatingImage[0]) {
-        if (settings.heroFloatingImagePublicId) {
-          try { await cloudinary.uploader.destroy(settings.heroFloatingImagePublicId); } catch(e) {}
+      if (req.files.heroFloatingImages && req.files.heroFloatingImages.length > 0) {
+        for (const file of req.files.heroFloatingImages) {
+          const result = await streamUpload(file.buffer, 'dubai_fast_food/settings');
+          settings.heroFloatingImages.push({ url: result.secure_url, publicId: result.public_id });
         }
-        const result = await streamUpload(req.files.heroFloatingImage[0].buffer, 'dubai_fast_food/settings');
-        settings.heroFloatingImage = result.secure_url;
-        settings.heroFloatingImagePublicId = result.public_id;
       }
     }
 

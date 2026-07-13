@@ -5,7 +5,11 @@ const settingsSchema = new mongoose.Schema({
   heroImage: { type: String, default: "" },
   heroImagePublicId: { type: String, default: "" },
   heroFloatingImage: { type: String, default: "" },
-  heroFloatingImagePublicId: { type: String, default: "" }
+  heroFloatingImagePublicId: { type: String, default: "" },
+  heroFloatingImages: [{
+    url: String,
+    publicId: String
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);

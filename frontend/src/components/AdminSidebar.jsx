@@ -26,7 +26,7 @@ const AdminSidebar = () => {
         </div>
       </div>
       
-      <div className="flex-1 py-6 flex flex-col gap-2 px-4">
+      <div className="flex-1 py-6 flex flex-col gap-2 px-4 overflow-y-auto">
         {menuItems.map((item) => (
           <NavLink
             key={item.name}
