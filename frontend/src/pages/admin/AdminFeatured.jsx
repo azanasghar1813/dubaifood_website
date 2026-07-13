@@ -69,11 +69,6 @@ const AdminFeatured = () => {
         <Star className="text-primary w-12 h-12" />
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Featured Dashboard</h1>
-          <p className="text-gray-600 mt-1">
-            This dashboard provides a unified view of all Deals and Menu Items that you have marked as <strong>Featured</strong>. 
-            They are pulled directly from your database and displayed in real-time on your Home Page. 
-            To add more items here, edit any item in the Deals or Menu Items tabs and check the "Mark as Featured" box.
-          </p>
         </div>
       </div>
 
