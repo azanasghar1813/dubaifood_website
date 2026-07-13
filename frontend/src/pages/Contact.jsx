@@ -3,13 +3,14 @@ import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Contact = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', phone: '', message: '' });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulate sending message
-    alert('Thank you for contacting us! We will get back to you soon.');
-    setFormData({ name: '', email: '', message: '' });
+    const whatsappNumber = "923088020784";
+    const whatsappMessage = `Name: ${formData.name}%0APhone: ${formData.phone}%0AMessage: ${formData.message}`;
+    window.open(`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`, '_blank');
+    setFormData({ name: '', phone: '', message: '' });
   };
 
   return (
@@ -47,8 +48,8 @@ const Contact = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
-                <p className="text-gray-600 font-medium">0300-1234567</p>
-                <p className="text-gray-600 font-medium">WhatsApp: 0300-1234567</p>
+                <p className="text-gray-600 font-medium">03088020784</p>
+                <p className="text-gray-600 font-medium">WhatsApp: 03088020784</p>
               </div>
             </div>
 
@@ -59,7 +60,7 @@ const Contact = () => {
               <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Opening Hours</h3>
                 <p className="text-gray-600">Everyday</p>
-                <p className="text-gray-600 font-medium">11:00 AM - 02:00 AM</p>
+                <p className="text-gray-600 font-medium">11:00 AM - 03:00 AM</p>
               </div>
             </div>
           </motion.div>
@@ -84,14 +85,14 @@ const Contact = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
                 <input 
-                  type="email" 
+                  type="tel" 
                   required
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" 
-                  placeholder="john@example.com"
+                  placeholder="0300-1234567"
                 />
               </div>
               <div>
