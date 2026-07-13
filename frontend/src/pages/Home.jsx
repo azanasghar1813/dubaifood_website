@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Star, Clock, MapPin, Phone } from 'lucide-react';
 import axios from 'axios';
 import ImageSlider from '../components/ImageSlider';
@@ -13,7 +13,15 @@ const Home = () => {
   const [featuredDeals, setFeaturedDeals] = useState([]);
   const [featuredItems, setFeaturedItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [heroImageIndex, setHeroImageIndex] = useState(0);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroImageIndex((prev) => (prev === 0 ? 1 : 0));
+    }, 5000); // Swap every 5 seconds
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,16 +110,28 @@ const Home = () => {
 
             {/* Right Content - Clean Image Presentation */}
             <motion.div 
-              className="w-full lg:w-1/2 relative hidden lg:flex justify-end"
+              className="w-full lg:w-1/2 relative hidden lg:flex justify-end items-center"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <img 
-                src={settings.heroFloatingImage || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1500&auto=format&fit=crop"}
-                className="w-full max-w-[500px] h-[350px] object-cover rounded-3xl shadow-2xl border-4 border-white/10 rotate-2"
-                alt="Delicious Burger"
-              />
+              <div className="relative w-full max-w-[500px] h-[350px]">
+                <AnimatePresence mode="wait">
+                  <motion.img 
+                    key={heroImageIndex}
+                    initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 2 }}
+                    exit={{ opacity: 0, scale: 1.05, rotate: 0 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    src={heroImageIndex === 0 
+                      ? (settings.heroFloatingImage || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1500&auto=format&fit=crop")
+                      : "https://png.pngtree.com/png-clipart/20230427/original/pngtree-burger-food-snack-png-image_9115206.png"
+                    }
+                    className="absolute inset-0 w-full h-full object-cover rounded-3xl shadow-2xl border-4 border-white/10"
+                    alt="Delicious Fast Food"
+                  />
+                </AnimatePresence>
+              </div>
             </motion.div>
             
           </div>
