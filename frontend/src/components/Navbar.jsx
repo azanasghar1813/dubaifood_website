@@ -2,15 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2 } from 'lucide-react';
-import { addToCart, removeFromCart, clearCartItems } from '../redux/cartSlice';
+import { addToCart, removeFromCart, clearCartItems, setIsCartOpen } from '../redux/cartSlice';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 const Navbar = () => {
-  const { cartItems } = useSelector((state) => state.cart);
+  const { cartItems, isCartOpen } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [settings, setSettings] = useState(null);
 
@@ -80,7 +79,7 @@ const Navbar = () => {
 
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => setIsCartOpen(true)}
+              onClick={() => dispatch(setIsCartOpen(true))}
               className="relative p-2.5 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors border border-gray-200"
             >
               <ShoppingCart className="w-5 h-5 text-secondary" />
@@ -133,7 +132,7 @@ const Navbar = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsCartOpen(false)}
+              onClick={() => dispatch(setIsCartOpen(false))}
               className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
             />
             <motion.div 
@@ -147,7 +146,7 @@ const Navbar = () => {
                 <h2 className="text-xl font-black flex items-center gap-2">
                   <ShoppingCart className="text-primary" /> Your Cart
                 </h2>
-                <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                <button onClick={() => dispatch(setIsCartOpen(false))} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
                   <X className="w-6 h-6 text-gray-500" />
                 </button>
               </div>
@@ -157,7 +156,7 @@ const Navbar = () => {
                   <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
                     <ShoppingCart className="w-16 h-16 opacity-50" />
                     <p className="text-lg font-bold">Your cart is empty</p>
-                    <button onClick={() => { setIsCartOpen(false); navigate('/menu'); }} className="btn-primary mt-4">Browse Menu</button>
+                    <button onClick={() => { dispatch(setIsCartOpen(false)); navigate('/menu'); }} className="btn-primary mt-4">Browse Menu</button>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -216,7 +215,7 @@ const Navbar = () => {
                   </div>
                   <button 
                     onClick={() => {
-                      setIsCartOpen(false);
+                      dispatch(setIsCartOpen(false));
                       navigate('/checkout');
                     }}
                     className="btn-primary w-full py-4 text-lg"

@@ -4,6 +4,7 @@ const initialState = {
   cartItems: [],
   shippingAddress: {},
   paymentMethod: 'Cash on Delivery',
+  isCartOpen: false,
 };
 
 const cartSlice = createSlice({
@@ -35,9 +36,12 @@ const cartSlice = createSlice({
     clearCartItems: (state) => {
       state.cartItems = [];
     },
+    setIsCartOpen: (state, action) => {
+      state.isCartOpen = action.payload;
+    },
   },
 });
 
-export const { addToCart, removeFromCart, saveShippingAddress, clearCartItems } = cartSlice.actions;
+export const { addToCart, removeFromCart, saveShippingAddress, clearCartItems, setIsCartOpen } = cartSlice.actions;
 
 export default cartSlice.reducer;

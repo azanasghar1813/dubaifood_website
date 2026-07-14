@@ -2,11 +2,17 @@ import { useState, useEffect } from 'react';
 import { Phone, ArrowUp } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 const FloatingButtons = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const location = useLocation();
+  const { isCartOpen } = useSelector((state) => state.cart);
   const whatsappNumber = '923088020784'; // Owner's WhatsApp
   const phoneNumber = '+923088020784';
+
+  const hideButtons = isCartOpen || ['/cart', '/checkout'].includes(location.pathname);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +29,8 @@ const FloatingButtons = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (hideButtons) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
