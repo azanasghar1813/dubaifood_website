@@ -247,6 +247,9 @@ router.post('/settings', upload.fields([
       if(!settings.socialLinks) settings.socialLinks = {};
       settings.socialLinks.tiktok = req.body.tiktok;
     }
+    if (req.body.deliveryCharge !== undefined) {
+      settings.deliveryCharge = Number(req.body.deliveryCharge);
+    }
 
     if (req.body.deleteHeroImage === 'true') {
       if (settings.heroImagePublicId) {
@@ -334,7 +337,16 @@ router.post('/gallery', upload.array('images', 10), async (req, res) => {
     }
 
     for (const file of req.files) {
-      const result = await streamUpload(file.buffer, 'dubai_fast_food/gallery');
+      const result = await new Promise((resolve, reject) => {
+        let stream = cloudinary.uploader.upload_stream(
+          { folder: 'dubai_fast_food/gallery', resource_type: 'auto' },
+          (error, res) => {
+            if (res) resolve(res);
+            else reject(error);
+          }
+        );
+        stream.end(file.buffer);
+      });
       galleryCat.images.push({ url: result.secure_url, publicId: result.public_id });
     }
 

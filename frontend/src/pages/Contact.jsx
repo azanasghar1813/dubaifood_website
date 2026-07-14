@@ -13,6 +13,15 @@ const Contact = () => {
     setFormData({ name: '', phone: '', message: '' });
   };
 
+  const handlePhoneChange = (e) => {
+    let val = e.target.value.replace(/\D/g, '');
+    if (val.length > 11) val = val.slice(0, 11);
+    if (val.length > 4) {
+      val = val.slice(0, 4) + '-' + val.slice(4);
+    }
+    setFormData({...formData, phone: val});
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
       {/* Header */}
@@ -38,7 +47,7 @@ const Contact = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Location</h3>
-                <p className="text-gray-600">Near Main Bazar<br/>Chowk Azam, Pakistan</p>
+                <p className="text-gray-600">Opposite Akbar Plaza Near Waqas Nazir Printers<br/>Layyah Road, Chowk Azam (Layyah)</p>
               </div>
             </div>
 
@@ -49,7 +58,6 @@ const Contact = () => {
               <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
                 <p className="text-gray-600 font-medium">0308-8020784</p>
-                <p className="text-gray-600 font-medium">0345-6420784</p>
                 <p className="text-gray-600 font-medium">WhatsApp: 0308-8020784</p>
               </div>
             </div>
@@ -92,7 +100,7 @@ const Contact = () => {
                   required
                   pattern="03[0-9]{2}-[0-9]{7}"
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  onChange={handlePhoneChange}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" 
                   placeholder="03xx-xxxxxxx"
                 />

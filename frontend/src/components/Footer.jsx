@@ -48,7 +48,7 @@ const Footer = () => {
         <div>
           <h4 className="text-xl font-bold mb-4">Contact & Timings</h4>
           <p className="text-gray-300 mb-2">WhatsApp / Call:</p>
-          <p className="text-primary font-bold text-lg mb-4">0308-8020784<br/>0345-6420784</p>
+          <p className="text-primary font-bold text-lg mb-4">0308-8020784</p>
           <p className="text-gray-300 mb-2">Shop Timing:</p>
           <p className="text-accent font-bold">10:00 AM to 03:00 AM</p>
         </div>

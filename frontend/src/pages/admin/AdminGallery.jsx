@@ -98,10 +98,19 @@ const AdminGallery = () => {
           <h2 className="text-xl font-bold mb-4">Upload New Image</h2>
           <form onSubmit={handleUpload} className="space-y-6">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Select Section</label>
-              <select value={section} onChange={e => setSection(e.target.value)} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                {sections.map(sec => <option key={sec} value={sec}>{sec}</option>)}
-              </select>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Section Name</label>
+              <input 
+                type="text" 
+                list="sectionsList"
+                value={section} 
+                onChange={e => setSection(e.target.value)} 
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Type new or select existing section"
+              />
+              <datalist id="sectionsList">
+                {sections.map(sec => <option key={sec} value={sec} />)}
+                {categories.map(cat => !sections.includes(cat.section) && <option key={cat.section} value={cat.section} />)}
+              </datalist>
             </div>
 
             <div>
@@ -111,7 +120,7 @@ const AdminGallery = () => {
                   <Upload className="w-8 h-8 text-gray-400 mb-2" />
                   <p className="text-sm text-gray-500">{files.length > 0 ? `${files.length} image(s) selected` : "Click to select images"}</p>
                 </div>
-                <input type="file" multiple className="hidden" accept="image/*" onChange={e => setFiles(Array.from(e.target.files))} />
+                <input type="file" multiple className="hidden" accept="image/*,video/mp4" onChange={e => setFiles(Array.from(e.target.files))} />
               </label>
             </div>
 
@@ -127,16 +136,22 @@ const AdminGallery = () => {
             <button onClick={() => handleDeleteCategory(cat._id)} className="text-sm text-red-500 hover:text-red-700">Delete Category</button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {cat.images.map(img => (
+            {cat.images.map(img => {
+              const isVideo = img.url && img.url.match(/\.(mp4|webm|ogg)$/i);
+              return (
               <div key={img._id} className="relative group rounded-xl overflow-hidden shadow-sm aspect-square bg-gray-100">
-                <img src={img.url} alt={cat.section} className="w-full h-full object-cover" />
+                {isVideo ? (
+                  <video src={img.url} className="w-full h-full object-cover" muted loop playsInline />
+                ) : (
+                  <img src={img.url} alt={cat.section} className="w-full h-full object-cover" />
+                )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-3">
                   <button onClick={() => handleDeleteImage(cat._id, img._id)} className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600">
                     <Trash2 size={20} />
                   </button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
       ))}

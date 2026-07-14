@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { clearCartItems } from '../redux/cartSlice';
 import { ArrowLeft, MapPin, Phone, User, MessageSquare, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 const Checkout = () => {
   const { cartItems } = useSelector((state) => state.cart);
@@ -23,18 +24,38 @@ const Checkout = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/public/settings');
+        setSettings(res.data);
+      } catch (err) {}
+    };
+    fetchSettings();
+  }, []);
 
   const calculateSubtotal = () => cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const deliveryFee = formData.deliveryType === 'Delivery' ? 150 : 0;
+  const deliveryFee = formData.deliveryType === 'Delivery' ? (settings?.deliveryCharge !== undefined ? settings.deliveryCharge : 150) : 0;
   const subtotal = calculateSubtotal();
   const total = subtotal + deliveryFee;
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === 'phone') {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length > 11) val = val.slice(0, 11);
+      if (val.length > 4) {
+        val = val.slice(0, 4) + '-' + val.slice(4);
+      }
+      setFormData({ ...formData, phone: val });
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
   };
 
   const generateWhatsAppMessage = () => {
-    const ownerNumber = '923001234567'; // Owner's WhatsApp Number
+    const ownerNumber = '923088020784'; // Owner's WhatsApp Number
     
     let message = `🍽️ *NEW ORDER*\n`;
     message += `━━━━━━━━━━━━━━\n\n`;

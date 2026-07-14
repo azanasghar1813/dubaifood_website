@@ -12,6 +12,7 @@ const settingsSchema = new mongoose.Schema({
   }],
   logoImage: { type: String, default: "" },
   logoImagePublicId: { type: String, default: "" },
+  deliveryCharge: { type: Number, default: 150 },
   socialLinks: {
     facebook: { type: String, default: "" },
     instagram: { type: String, default: "" },

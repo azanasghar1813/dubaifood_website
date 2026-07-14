@@ -37,7 +37,7 @@ const Home = () => {
           const featured = dealsRes.data.filter(d => d.isFeatured);
           setFeaturedDeals(featured);
         }
-        if (itemsRes.data) setFeaturedItems(itemsRes.data.slice(0, 6)); // Show top 6 items
+        if (itemsRes.data) setFeaturedItems(itemsRes.data); // Show all featured items
         if (catsRes.data) setCategories(catsRes.data);
 
       } catch (err) {
@@ -174,7 +174,7 @@ const Home = () => {
             variants={containerVariants}
           >
             {categories.map((cat, idx) => (
-              <Link key={idx} to={cat.link}>
+              <Link key={idx} to={`/menu?category=${encodeURIComponent(cat.name)}`}>
                 <motion.div
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
@@ -212,7 +212,9 @@ const Home = () => {
                   className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-shadow group flex flex-col h-full"
                 >
                   <div className="relative h-40 overflow-hidden bg-yellow-50 flex items-center justify-center">
-                    {deal.image ? (
+                    {(deal.images && deal.images.length > 0) ? (
+                      <ImageSlider images={deal.images} interval={2500 + Math.random() * 2000} />
+                    ) : deal.image ? (
                       <img src={deal.image} alt={deal.dealNumber} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <span className="text-4xl">🔥</span>
@@ -327,7 +329,7 @@ const Home = () => {
                     </div>
                     <div>
                       <h4 className="text-white font-bold text-sm md:text-base">Our Location</h4>
-                      <p className="text-gray-400 text-xs md:text-sm">Near Main Bazar Chowk Azam</p>
+                      <p className="text-gray-400 text-xs md:text-sm">Opposite Akbar Plaza Near Waqas Nazir Printers<br/>Layyah Road, Chowk Azam (Layyah)</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 md:gap-4">

@@ -33,8 +33,19 @@ const ImageSlider = ({ images, interval = 3000 }) => {
       >
         {normalizedImages.map((img, index) => {
           const imgSrc = typeof img === 'object' && img !== null ? (img.url || img.image) : img;
+          const isVideo = typeof imgSrc === 'string' && imgSrc.match(/\.(mp4|webm|ogg)$/i);
           
-          return (
+          return isVideo ? (
+            <video
+              key={index}
+              src={imgSrc}
+              className="w-full h-full object-cover flex-shrink-0"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
             <img
               key={index}
               src={imgSrc}

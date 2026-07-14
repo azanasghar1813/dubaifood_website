@@ -10,6 +10,7 @@ const AdminSettings = () => {
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
   const [tiktok, setTiktok] = useState('');
+  const [deliveryCharge, setDeliveryCharge] = useState(150);
   // Logo Image State
   const [logoImage, setLogoImage] = useState(null);
   const [currentLogoImage, setCurrentLogoImage] = useState('');
@@ -41,6 +42,9 @@ const AdminSettings = () => {
           setInstagram(res.data.socialLinks.instagram || '');
           setTiktok(res.data.socialLinks.tiktok || '');
         }
+        if (res.data.deliveryCharge !== undefined) {
+          setDeliveryCharge(res.data.deliveryCharge);
+        }
         setCurrentHeroImage(res.data.heroImage || '');
         setCurrentLogoImage(res.data.logoImage || '');
         const floatingImages = res.data.heroFloatingImages ? [...res.data.heroFloatingImages] : [];
@@ -62,6 +66,7 @@ const AdminSettings = () => {
     formData.append('facebook', facebook);
     formData.append('instagram', instagram);
     formData.append('tiktok', tiktok);
+    formData.append('deliveryCharge', deliveryCharge);
     
     // Logo Image Appends
     if (logoImage) formData.append('logoImage', logoImage);
@@ -121,6 +126,18 @@ const AdminSettings = () => {
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               <p className="text-xs text-gray-500 mt-2">This text appears scrolling at the top of the homepage.</p>
+            </div>
+
+            <div className="border-t border-gray-100 pt-6">
+              <label className="block text-sm font-bold text-gray-700 mb-2">Delivery Charges</label>
+              <input 
+                type="number" 
+                value={deliveryCharge}
+                onChange={e => setDeliveryCharge(e.target.value)}
+                placeholder="e.g. 150" 
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              <p className="text-xs text-gray-500 mt-2">Set delivery charge applied on all delivery orders. Set to 0 for free delivery.</p>
             </div>
 
             <div className="border-t border-gray-100 pt-6">

@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, Plus, X } from 'lucide-react';
 import ImageSlider from '../components/ImageSlider';
-
+import { useLocation } from 'react-router-dom';
 
 const MenuItemCard = ({ item, activeTab, handleAddToCart, setSelectedItemForModal }) => {
   const [selectedSize, setSelectedSize] = useState(item.sizes?.length ? item.sizes[0] : null);
@@ -95,6 +95,7 @@ const Menu = () => {
   const [selectedItemForModal, setSelectedItemForModal] = useState(null);
   const [activeSection, setActiveSection] = useState('');
   const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -121,6 +122,24 @@ const Menu = () => {
     };
     fetchMenu();
   }, []);
+
+  useEffect(() => {
+    if (!loading && superCategories.length > 0) {
+      const searchParams = new URLSearchParams(location.search);
+      const targetCategory = searchParams.get('category');
+      
+      if (targetCategory) {
+        const parentSuperCat = superCategories.find(c => c.categories?.includes(targetCategory));
+        if (parentSuperCat) {
+          setActiveTab(parentSuperCat.id);
+        }
+        
+        setTimeout(() => {
+          scrollToCategory(targetCategory);
+        }, 500);
+      }
+    }
+  }, [loading, location.search, superCategories]);
 
   const filteredMenuData = useMemo(() => {
     let validCategories = [];
