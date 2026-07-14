@@ -132,6 +132,7 @@ const AdminSettings = () => {
               <label className="block text-sm font-bold text-gray-700 mb-2">Delivery Charges</label>
               <input 
                 type="number" 
+                min="0"
                 value={deliveryCharge}
                 onChange={e => setDeliveryCharge(e.target.value)}
                 placeholder="e.g. 150" 

@@ -26,7 +26,7 @@ const Navbar = () => {
   }, []);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const deliveryFee = 150;
+  const deliveryFee = settings?.deliveryCharge !== undefined ? Math.max(0, Number(settings.deliveryCharge)) : 150;
   const total = subtotal > 0 ? subtotal + deliveryFee : 0;
 
   const handleUpdateQty = (item, newQty) => {

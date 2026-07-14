@@ -37,7 +37,7 @@ const Checkout = () => {
   }, []);
 
   const calculateSubtotal = () => cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const deliveryFee = formData.deliveryType === 'Delivery' ? (settings?.deliveryCharge !== undefined ? settings.deliveryCharge : 150) : 0;
+  const deliveryFee = formData.deliveryType === 'Delivery' ? (settings?.deliveryCharge !== undefined ? Math.max(0, Number(settings.deliveryCharge)) : 150) : 0;
   const subtotal = calculateSubtotal();
   const total = subtotal + deliveryFee;
 
