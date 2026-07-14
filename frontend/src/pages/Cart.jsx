@@ -30,8 +30,18 @@ const Cart = () => {
             {cartItems.map((item, index) => (
               <div key={index} className="card p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4 flex-1">
-                  <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">
-                    🍔
+                  <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl overflow-hidden shrink-0">
+                    {(() => {
+                      const imgSrc = item.images && item.images.length > 0
+                        ? (typeof item.images[0] === 'object' ? (item.images[0].url || item.images[0].image) : item.images[0])
+                        : item.image;
+                      
+                      return imgSrc ? (
+                        <img src={imgSrc} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        '🍔'
+                      );
+                    })()}
                   </div>
                   <div>
                     <h3 className="font-bold">{item.name}</h3>

@@ -163,8 +163,18 @@ const Navbar = () => {
                   <div className="space-y-4">
                     {cartItems.map((item, index) => (
                       <div key={index} className="flex gap-4 items-center bg-gray-50 p-3 rounded-2xl border border-gray-100 relative">
-                        <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm border border-gray-100">
-                          🍔
+                        <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm border border-gray-100 overflow-hidden shrink-0">
+                          {(() => {
+                            const imgSrc = item.images && item.images.length > 0
+                              ? (typeof item.images[0] === 'object' ? (item.images[0].url || item.images[0].image) : item.images[0])
+                              : item.image;
+                            
+                            return imgSrc ? (
+                              <img src={imgSrc} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
+                            ) : (
+                              '🍔'
+                            );
+                          })()}
                         </div>
                         <div className="flex-1">
                           <h4 className="font-bold text-gray-800 leading-tight">{item.name}</h4>

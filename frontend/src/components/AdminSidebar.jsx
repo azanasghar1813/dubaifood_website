@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, Settings, LogOut, List, Pizza } from 'lucide-react';
 
-const AdminSidebar = () => {
+const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const menuItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
     { name: 'Orders', path: '/admin/orders', icon: <ShoppingBag size={20} /> },
@@ -17,7 +17,16 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <div className="w-64 bg-secondary text-white h-screen fixed left-0 top-0 flex flex-col shadow-xl z-20">
+    <>
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
+      <div className={`w-64 bg-secondary text-white h-screen fixed left-0 top-0 flex flex-col shadow-xl z-40 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
       <div className="p-6 flex items-center gap-3 border-b border-gray-800">
         <div className="bg-primary text-secondary font-bold p-2 rounded-lg">DF</div>
         <div>
@@ -32,6 +41,7 @@ const AdminSidebar = () => {
             key={item.name}
             to={item.path}
             end={item.path === '/admin'}
+            onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                 isActive
@@ -53,6 +63,7 @@ const AdminSidebar = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

@@ -11,6 +11,7 @@ const AdminGallery = () => {
   const [showForm, setShowForm] = useState(false);
   const [files, setFiles] = useState([]);
   const [section, setSection] = useState('General');
+  const [uploading, setUploading] = useState(false);
 
   const sections = ['General', 'Restaurant Interior', 'Kitchen', 'Events'];
 
@@ -36,6 +37,7 @@ const AdminGallery = () => {
       return;
     }
 
+    setUploading(true);
     const formData = new FormData();
     files.forEach(f => formData.append('images', f));
     formData.append('section', section);
@@ -50,6 +52,8 @@ const AdminGallery = () => {
       fetchGallery();
     } catch (err) {
       toast.error('Failed to upload image');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -124,7 +128,16 @@ const AdminGallery = () => {
               </label>
             </div>
 
-            <button type="submit" disabled={files.length === 0} className="w-full bg-primary text-secondary font-bold py-3 rounded-lg hover:bg-yellow-400 disabled:opacity-50">Upload to Gallery</button>
+            <button type="submit" disabled={files.length === 0 || uploading} className="w-full flex justify-center items-center gap-2 bg-primary text-secondary font-bold py-3 rounded-lg hover:bg-yellow-400 disabled:opacity-50">
+              {uploading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin"></div>
+                  Uploading...
+                </>
+              ) : (
+                'Upload to Gallery'
+              )}
+            </button>
           </form>
         </div>
       )}
@@ -143,7 +156,7 @@ const AdminGallery = () => {
                 {isVideo ? (
                   <video src={img.url} className="w-full h-full object-cover" muted loop playsInline />
                 ) : (
-                  <img src={img.url} alt={cat.section} className="w-full h-full object-cover" />
+                  <img src={img.url} alt={cat.section} className="w-full h-full object-cover" loading="lazy" />
                 )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-3">
                   <button onClick={() => handleDeleteImage(cat._id, img._id)} className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600">

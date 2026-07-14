@@ -51,6 +51,7 @@ const ImageSlider = ({ images, interval = 3000 }) => {
               src={imgSrc}
               alt={`Slide ${index}`}
               className="w-full h-full object-cover flex-shrink-0"
+              loading="lazy"
             />
           );
         })}
