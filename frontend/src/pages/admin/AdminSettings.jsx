@@ -7,6 +7,9 @@ const API_URL = 'http://localhost:5000/api';
 
 const AdminSettings = () => {
   const [announcementText, setAnnouncementText] = useState('');
+  const [facebook, setFacebook] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [tiktok, setTiktok] = useState('');
   
   // Hero Image State
   const [heroImage, setHeroImage] = useState(null);
@@ -29,6 +32,11 @@ const AdminSettings = () => {
       const res = await axios.get(`${API_URL}/public/settings`);
       if (res.data) {
         setAnnouncementText(res.data.announcementText || '');
+        if(res.data.socialLinks) {
+          setFacebook(res.data.socialLinks.facebook || '');
+          setInstagram(res.data.socialLinks.instagram || '');
+          setTiktok(res.data.socialLinks.tiktok || '');
+        }
         setCurrentHeroImage(res.data.heroImage || '');
         const floatingImages = res.data.heroFloatingImages ? [...res.data.heroFloatingImages] : [];
         if (res.data.heroFloatingImage && floatingImages.length === 0) {
@@ -46,6 +54,9 @@ const AdminSettings = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append('announcementText', announcementText);
+    formData.append('facebook', facebook);
+    formData.append('instagram', instagram);
+    formData.append('tiktok', tiktok);
     
     // Hero Image Appends
     if (heroImage) formData.append('heroImage', heroImage);
@@ -101,6 +112,24 @@ const AdminSettings = () => {
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               <p className="text-xs text-gray-500 mt-2">This text appears scrolling at the top of the homepage.</p>
+            </div>
+
+            <div className="border-t border-gray-100 pt-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Social Media Links</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Facebook URL</label>
+                  <input type="text" value={facebook} onChange={e => setFacebook(e.target.value)} placeholder="https://facebook.com/..." className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Instagram URL</label>
+                  <input type="text" value={instagram} onChange={e => setInstagram(e.target.value)} placeholder="https://instagram.com/..." className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">TikTok URL</label>
+                  <input type="text" value={tiktok} onChange={e => setTiktok(e.target.value)} placeholder="https://tiktok.com/..." className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                </div>
+              </div>
             </div>
 
             <div className="border-t border-gray-100 pt-6">

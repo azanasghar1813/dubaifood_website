@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const FloatingButtons = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const whatsappNumber = '923001234567'; // Owner's WhatsApp
-  const phoneNumber = '+923001234567';
+  const whatsappNumber = '923088020784'; // Owner's WhatsApp
+  const phoneNumber = '+923088020784';
 
   useEffect(() => {
     const handleScroll = () => {

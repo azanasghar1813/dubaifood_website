@@ -124,11 +124,11 @@ const Menu = () => {
 
   const filteredMenuData = useMemo(() => {
     let validCategories = [];
-    if (activeTab) {
+    if (searchQuery || activeFilter !== 'All') {
+      validCategories = superCategories.flatMap(c => c.categories);
+    } else if (activeTab) {
       const activeSuperCategory = superCategories.find(c => c.id === activeTab);
       if (activeSuperCategory) validCategories = activeSuperCategory.categories;
-    } else if (searchQuery || activeFilter !== 'All') {
-      validCategories = superCategories.flatMap(c => c.categories);
     } else {
       return [];
     }
@@ -299,7 +299,7 @@ const Menu = () => {
 
           {/* Desktop Sidebar */}
           <div className="hidden lg:block w-64 shrink-0">
-            <div className="sticky top-24 bg-white rounded-3xl p-6 shadow-xl border border-gray-100">
+            <div className="sticky top-24 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar">
               <h3 className="font-black text-xl text-secondary mb-4">Categories</h3>
               <div className="flex flex-col gap-2">
                 {filteredMenuData.map((categoryGroup) => (

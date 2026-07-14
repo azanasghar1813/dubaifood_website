@@ -48,8 +48,9 @@ const Contact = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
-                <p className="text-gray-600 font-medium">03088020784</p>
-                <p className="text-gray-600 font-medium">WhatsApp: 03088020784</p>
+                <p className="text-gray-600 font-medium">0308-8020784</p>
+                <p className="text-gray-600 font-medium">0345-6420784</p>
+                <p className="text-gray-600 font-medium">WhatsApp: 0308-8020784</p>
               </div>
             </div>
 
@@ -89,11 +90,13 @@ const Contact = () => {
                 <input 
                   type="tel" 
                   required
+                  pattern="03[0-9]{2}-[0-9]{7}"
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" 
-                  placeholder="0300-1234567"
+                  placeholder="03xx-xxxxxxx"
                 />
+                <p className="text-xs text-gray-500 mt-1">Format: 03xx-xxxxxxx</p>
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Message</label>

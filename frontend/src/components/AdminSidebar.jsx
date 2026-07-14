@@ -17,11 +17,11 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <div className="w-64 bg-secondary text-white min-h-screen fixed left-0 top-0 flex flex-col shadow-xl z-20">
+    <div className="w-64 bg-secondary text-white h-screen fixed left-0 top-0 flex flex-col shadow-xl z-20">
       <div className="p-6 flex items-center gap-3 border-b border-gray-800">
         <div className="bg-primary text-secondary font-bold p-2 rounded-lg">DF</div>
         <div>
-          <h2 className="text-xl font-bold text-primary">Dubai Food</h2>
+          <h2 className="text-xl font-bold text-primary">Dubai Fast Food</h2>
           <p className="text-xs text-gray-400">Admin Portal</p>
         </div>
       </div>

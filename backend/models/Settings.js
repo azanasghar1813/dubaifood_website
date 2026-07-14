@@ -9,7 +9,12 @@ const settingsSchema = new mongoose.Schema({
   heroFloatingImages: [{
     url: String,
     publicId: String
-  }]
+  }],
+  socialLinks: {
+    facebook: { type: String, default: "" },
+    instagram: { type: String, default: "" },
+    tiktok: { type: String, default: "" }
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);

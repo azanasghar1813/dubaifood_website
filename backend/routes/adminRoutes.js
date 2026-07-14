@@ -231,6 +231,18 @@ router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { na
     if (req.body.announcementText !== undefined) {
       settings.announcementText = req.body.announcementText;
     }
+    if (req.body.facebook !== undefined) {
+      if(!settings.socialLinks) settings.socialLinks = {};
+      settings.socialLinks.facebook = req.body.facebook;
+    }
+    if (req.body.instagram !== undefined) {
+      if(!settings.socialLinks) settings.socialLinks = {};
+      settings.socialLinks.instagram = req.body.instagram;
+    }
+    if (req.body.tiktok !== undefined) {
+      if(!settings.socialLinks) settings.socialLinks = {};
+      settings.socialLinks.tiktok = req.body.tiktok;
+    }
 
     if (req.body.deleteHeroImage === 'true') {
       if (settings.heroImagePublicId) {

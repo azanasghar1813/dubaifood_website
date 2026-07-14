@@ -139,7 +139,7 @@ const Navbar = () => {
                   <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
                     <ShoppingCart className="w-16 h-16 opacity-50" />
                     <p className="text-lg font-bold">Your cart is empty</p>
-                    <button onClick={() => setIsCartOpen(false)} className="btn-primary mt-4">Browse Menu</button>
+                    <button onClick={() => { setIsCartOpen(false); navigate('/menu'); }} className="btn-primary mt-4">Browse Menu</button>
                   </div>
                 ) : (
                   <div className="space-y-4">
