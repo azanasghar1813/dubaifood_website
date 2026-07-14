@@ -189,6 +189,20 @@ const Menu = () => {
     };
   }, [filteredMenuData, activeTab]);
 
+  useEffect(() => {
+    if (activeSection) {
+      const activeBtn = document.getElementById(`sidebar-btn-${activeSection}`);
+      if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      
+      const mobileBtn = document.getElementById(`mobile-btn-${activeSection}`);
+      if (mobileBtn) {
+        mobileBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [activeSection]);
+
   const scrollToCategory = (categoryName, retries = 3) => {
     const el = document.getElementById(`category-${categoryName}`);
     if (el) {
@@ -285,6 +299,7 @@ const Menu = () => {
               {filteredMenuData.map((categoryGroup) => (
                 <button
                   key={categoryGroup.category.name}
+                  id={`mobile-btn-category-${categoryGroup.category.name}`}
                   onClick={() => scrollToCategory(categoryGroup.category.name)}
                   className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-colors ${activeSection === `category-${categoryGroup.category.name}`
                       ? 'bg-secondary text-primary shadow-sm'
@@ -305,6 +320,7 @@ const Menu = () => {
                 {filteredMenuData.map((categoryGroup) => (
                   <button
                     key={categoryGroup.category.name}
+                    id={`sidebar-btn-category-${categoryGroup.category.name}`}
                     onClick={() => scrollToCategory(categoryGroup.category.name)}
                     className={`text-left px-4 py-3 rounded-xl font-bold transition-all ${activeSection === `category-${categoryGroup.category.name}`
                         ? 'bg-primary/20 text-secondary border-l-4 border-primary pl-3'

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { ShoppingCart, Menu as MenuIcon, X, Plus, Minus, Trash2 } from 'lucide-react';
 import { addToCart, removeFromCart, clearCartItems } from '../redux/cartSlice';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 const Navbar = () => {
   const { cartItems } = useSelector((state) => state.cart);
@@ -11,6 +12,19 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/public/settings');
+        setSettings(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
   const deliveryFee = 150;
@@ -40,7 +54,11 @@ const Navbar = () => {
         <div className="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2 lg:gap-3">
             <div className="bg-primary text-secondary p-2 rounded-xl flex items-center justify-center shrink-0 text-xl lg:text-3xl shadow-sm">
-              🍔
+              {settings?.logoImage ? (
+                <img src={settings.logoImage} alt="Logo" className="w-8 h-8 lg:w-10 lg:h-10 object-contain rounded-md" />
+              ) : (
+                '🍔'
+              )}
             </div>
             <div className="flex flex-col">
               <span className="text-sm sm:text-xl lg:text-2xl font-black text-secondary leading-none">

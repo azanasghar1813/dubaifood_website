@@ -10,6 +10,8 @@ const settingsSchema = new mongoose.Schema({
     url: String,
     publicId: String
   }],
+  logoImage: { type: String, default: "" },
+  logoImagePublicId: { type: String, default: "" },
   socialLinks: {
     facebook: { type: String, default: "" },
     instagram: { type: String, default: "" },

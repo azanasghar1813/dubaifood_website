@@ -10,6 +10,10 @@ const AdminSettings = () => {
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
   const [tiktok, setTiktok] = useState('');
+  // Logo Image State
+  const [logoImage, setLogoImage] = useState(null);
+  const [currentLogoImage, setCurrentLogoImage] = useState('');
+  const [deleteLogoImage, setDeleteLogoImage] = useState(false);
   
   // Hero Image State
   const [heroImage, setHeroImage] = useState(null);
@@ -38,6 +42,7 @@ const AdminSettings = () => {
           setTiktok(res.data.socialLinks.tiktok || '');
         }
         setCurrentHeroImage(res.data.heroImage || '');
+        setCurrentLogoImage(res.data.logoImage || '');
         const floatingImages = res.data.heroFloatingImages ? [...res.data.heroFloatingImages] : [];
         if (res.data.heroFloatingImage && floatingImages.length === 0) {
           floatingImages.push({ url: res.data.heroFloatingImage, publicId: res.data.heroFloatingImagePublicId });
@@ -57,6 +62,10 @@ const AdminSettings = () => {
     formData.append('facebook', facebook);
     formData.append('instagram', instagram);
     formData.append('tiktok', tiktok);
+    
+    // Logo Image Appends
+    if (logoImage) formData.append('logoImage', logoImage);
+    formData.append('deleteLogoImage', deleteLogoImage);
     
     // Hero Image Appends
     if (heroImage) formData.append('heroImage', heroImage);
@@ -128,6 +137,57 @@ const AdminSettings = () => {
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">TikTok URL</label>
                   <input type="text" value={tiktok} onChange={e => setTiktok(e.target.value)} placeholder="https://tiktok.com/..." className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-6">
+              <label className="block text-sm font-bold text-gray-700 mb-4">Website Logo</label>
+              <div className="flex flex-col md:flex-row gap-6">
+                
+                {/* Current Logo Preview */}
+                <div className="w-full md:w-1/3">
+                  <p className="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wider">Current Logo</p>
+                  <div className="w-full h-32 bg-gray-50 rounded-xl border border-gray-200 overflow-hidden relative flex items-center justify-center">
+                    {currentLogoImage && !deleteLogoImage ? (
+                      <>
+                        <img src={currentLogoImage} alt="Logo" className="w-full h-full object-contain p-2" />
+                        <button 
+                          type="button"
+                          onClick={() => setDeleteLogoImage(true)}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-lg hover:bg-red-600 transition-colors shadow-sm"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-gray-400 text-sm">No logo set</span>
+                    )}
+                  </div>
+                  {deleteLogoImage && currentLogoImage && (
+                    <button type="button" onClick={() => setDeleteLogoImage(false)} className="text-xs text-primary font-bold mt-2 hover:underline">
+                      Undo Delete
+                    </button>
+                  )}
+                </div>
+
+                {/* Upload New Logo */}
+                <div className="w-full md:w-2/3">
+                  <p className="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wider">Upload New Logo</p>
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-primary transition-all bg-white group">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-6 h-6 text-gray-400 group-hover:text-primary mb-2 transition-colors" />
+                      <p className="mb-1 text-sm text-gray-500"><span className="font-bold">Click to upload</span> or drag and drop</p>
+                      <p className="text-xs text-gray-400">PNG, JPG, WEBP (Max 2MB)</p>
+                    </div>
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => setLogoImage(e.target.files[0])} />
+                  </label>
+                  {logoImage && (
+                    <div className="mt-2 text-sm text-green-600 font-bold flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
+                      Selected: {logoImage.name}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

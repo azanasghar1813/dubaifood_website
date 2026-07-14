@@ -221,7 +221,11 @@ router.delete('/deals/:id', async (req, res) => {
 });
 
 // --- SETTINGS ---
-router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { name: 'heroFloatingImages', maxCount: 10 }]), async (req, res) => {
+router.post('/settings', upload.fields([
+  { name: 'heroImage', maxCount: 1 }, 
+  { name: 'heroFloatingImages', maxCount: 10 },
+  { name: 'logoImage', maxCount: 1 }
+]), async (req, res) => {
   try {
     let settings = await Settings.findOne();
     if (!settings) {
@@ -260,6 +264,14 @@ router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { na
       settings.heroFloatingImagePublicId = '';
     }
 
+    if (req.body.deleteLogoImage === 'true') {
+      if (settings.logoImagePublicId) {
+        try { await cloudinary.uploader.destroy(settings.logoImagePublicId); } catch(e) { console.error("Error deleting logo", e); }
+      }
+      settings.logoImage = '';
+      settings.logoImagePublicId = '';
+    }
+
     if (req.body.heroFloatingImagesToDelete) {
       const toDelete = JSON.parse(req.body.heroFloatingImagesToDelete);
       for (const publicId of toDelete) {
@@ -283,6 +295,15 @@ router.post('/settings', upload.fields([{ name: 'heroImage', maxCount: 1 }, { na
         const result = await streamUpload(req.files.heroImage[0].buffer, 'dubai_fast_food/settings');
         settings.heroImage = result.secure_url;
         settings.heroImagePublicId = result.public_id;
+      }
+
+      if (req.files.logoImage && req.files.logoImage[0]) {
+        if (settings.logoImagePublicId) {
+          try { await cloudinary.uploader.destroy(settings.logoImagePublicId); } catch(e) {}
+        }
+        const result = await streamUpload(req.files.logoImage[0].buffer, 'dubai_fast_food/settings');
+        settings.logoImage = result.secure_url;
+        settings.logoImagePublicId = result.public_id;
       }
 
       if (req.files.heroFloatingImages && req.files.heroFloatingImages.length > 0) {

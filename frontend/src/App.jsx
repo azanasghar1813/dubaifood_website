@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
@@ -73,6 +74,26 @@ const CustomerLayout = ({ children }) => (
 );
 
 function App() {
+  useEffect(() => {
+    const updateFavicon = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/public/settings');
+        if (res.data?.logoImage) {
+          let link = document.querySelector("link[rel~='icon']");
+          if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.getElementsByTagName('head')[0].appendChild(link);
+          }
+          link.href = res.data.logoImage;
+        }
+      } catch (err) {
+        console.error('Failed to update favicon:', err);
+      }
+    };
+    updateFavicon();
+  }, []);
+
   return (
     <Router>
       <Routes>

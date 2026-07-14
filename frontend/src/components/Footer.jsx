@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Facebook, Instagram } from 'lucide-react';
-import { FaTiktok } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 
 const Footer = () => {
   const [settings, setSettings] = useState(null);
@@ -32,8 +31,8 @@ const Footer = () => {
           </p>
           {settings?.socialLinks && (
             <div className="flex gap-4 mt-6">
-              {settings.socialLinks.facebook && <a href={settings.socialLinks.facebook} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-primary transition-colors"><Facebook size={24} /></a>}
-              {settings.socialLinks.instagram && <a href={settings.socialLinks.instagram} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-primary transition-colors"><Instagram size={24} /></a>}
+              {settings.socialLinks.facebook && <a href={settings.socialLinks.facebook} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-primary transition-colors"><FaFacebook size={24} /></a>}
+              {settings.socialLinks.instagram && <a href={settings.socialLinks.instagram} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-primary transition-colors"><FaInstagram size={24} /></a>}
               {settings.socialLinks.tiktok && <a href={settings.socialLinks.tiktok} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-primary transition-colors"><FaTiktok size={22} /></a>}
             </div>
           )}
