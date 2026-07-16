@@ -15,6 +15,12 @@ const AdminLayout = () => {
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_auth');
+    setIsAuthenticated(false);
+  };
+
   if (!isAuthenticated) {
     return <AdminLogin setAuthenticated={setIsAuthenticated} />;
   }
@@ -33,7 +39,7 @@ const AdminLayout = () => {
       </div>
 
       <div className="flex pt-[72px] md:pt-0">
-        <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} handleLogout={handleLogout} />
         
         {/* Main Content */}
         <div className="flex-1 w-full md:ml-64 p-4 md:p-8">

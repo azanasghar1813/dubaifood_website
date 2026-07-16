@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, Settings, LogOut, List, Pizza } from 'lucide-react';
 
-const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
+const AdminSidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
   const menuItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
     { name: 'Orders', path: '/admin/orders', icon: <ShoppingBag size={20} /> },
@@ -57,7 +57,10 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       </div>
 
       <div className="p-4 border-t border-gray-800">
-        <button className="flex items-center gap-3 text-red-400 hover:text-red-300 hover:bg-red-400/10 w-full px-4 py-3 rounded-xl transition-colors">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 text-red-400 hover:text-red-300 hover:bg-red-400/10 w-full px-4 py-3 rounded-xl transition-colors"
+        >
           <LogOut size={20} />
           <span>Logout</span>
         </button>
