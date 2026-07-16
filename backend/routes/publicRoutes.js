@@ -6,6 +6,7 @@ const Settings = require('../models/Settings');
 const Gallery = require('../models/Gallery');
 const Review = require('../models/Review');
 const Order = require('../models/Order');
+const FeaturedItem = require('../models/FeaturedItem');
 
 // Get all menu items
 router.get('/menuitems', async (req, res) => {
@@ -31,11 +32,11 @@ const MenuCategory = require('../models/MenuCategory');
 const HomeCategory = require('../models/HomeCategory');
 const Filter = require('../models/Filter');
 
-// Get all featured items (Menu Items marked as featured)
+// Get all featured items
 router.get('/featured', async (req, res) => {
   try {
-    const featuredMenuItems = await MenuItem.find({ isFeatured: true });
-    res.json(featuredMenuItems);
+    const featuredItems = await FeaturedItem.find().populate('referenceId');
+    res.json(featuredItems);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

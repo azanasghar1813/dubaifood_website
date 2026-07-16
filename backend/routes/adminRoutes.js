@@ -3,6 +3,7 @@ const router = express.Router();
 const { upload } = require('../middleware/upload');
 const MenuItem = require('../models/MenuItem');
 const Deal = require('../models/Deal');
+const FeaturedItem = require('../models/FeaturedItem');
 const Order = require('../models/Order');
 const Settings = require('../models/Settings');
 const Gallery = require('../models/Gallery');
@@ -50,6 +51,11 @@ router.post('/menuitems', upload.array('images', 5), async (req, res) => {
     });
 
     await newItem.save();
+    
+    if (newItem.isFeatured) {
+      await new FeaturedItem({ itemType: 'menuitem', referenceId: newItem._id, itemModel: 'MenuItem' }).save();
+    }
+    
     res.status(201).json(newItem);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -97,6 +103,19 @@ router.put('/menuitems/:id', upload.array('images', 5), async (req, res) => {
     }
 
     await item.save();
+    
+    if (req.body.isFeatured !== undefined) {
+      const isFeatured = req.body.isFeatured === 'true';
+      if (isFeatured) {
+        const existingFeatured = await FeaturedItem.findOne({ referenceId: item._id });
+        if (!existingFeatured) {
+          await new FeaturedItem({ itemType: 'menuitem', referenceId: item._id, itemModel: 'MenuItem' }).save();
+        }
+      } else {
+        await FeaturedItem.findOneAndDelete({ referenceId: item._id });
+      }
+    }
+
     res.json(item);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -120,6 +139,7 @@ router.delete('/menuitems/:id', async (req, res) => {
       await cloudinary.uploader.destroy(item.imagePublicId);
     }
 
+    await FeaturedItem.findOneAndDelete({ referenceId: item._id });
     await MenuItem.findByIdAndDelete(req.params.id);
     res.json({ message: 'Item deleted' });
   } catch (err) {
@@ -149,6 +169,11 @@ router.post('/deals', upload.array('images', 5), async (req, res) => {
     });
 
     await newDeal.save();
+    
+    if (newDeal.isFeatured) {
+      await new FeaturedItem({ itemType: 'deal', referenceId: newDeal._id, itemModel: 'Deal' }).save();
+    }
+    
     res.status(201).json(newDeal);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -196,6 +221,19 @@ router.put('/deals/:id', upload.array('images', 5), async (req, res) => {
     }
 
     await deal.save();
+    
+    if (req.body.isFeatured !== undefined) {
+      const isFeatured = req.body.isFeatured === 'true';
+      if (isFeatured) {
+        const existingFeatured = await FeaturedItem.findOne({ referenceId: deal._id });
+        if (!existingFeatured) {
+          await new FeaturedItem({ itemType: 'deal', referenceId: deal._id, itemModel: 'Deal' }).save();
+        }
+      } else {
+        await FeaturedItem.findOneAndDelete({ referenceId: deal._id });
+      }
+    }
+
     res.json(deal);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -213,6 +251,7 @@ router.delete('/deals/:id', async (req, res) => {
         if (img.publicId) await cloudinary.uploader.destroy(img.publicId);
       }
     }
+    await FeaturedItem.findOneAndDelete({ referenceId: deal._id });
     await Deal.findByIdAndDelete(req.params.id);
     res.json({ message: 'Deal deleted' });
   } catch (err) {
@@ -422,7 +461,102 @@ router.delete('/reviews/:id', async (req, res) => {
   }
 });
 
-// FeaturedItem routes have been removed in favor of isFeatured flag on Deals and MenuItems
+// --- FEATURED ITEMS CRUD ---
+router.get('/featured', async (req, res) => {
+  try {
+    const items = await FeaturedItem.find().populate('referenceId');
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post('/featured', upload.array('images', 5), async (req, res) => {
+  try {
+    const images = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await streamUpload(file.buffer, 'dubai_fast_food/featured');
+        images.push({ url: result.secure_url, publicId: result.public_id });
+      }
+    }
+
+    const newItem = new FeaturedItem({
+      itemType: 'custom',
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      images: images
+    });
+
+    await newItem.save();
+    res.status(201).json(newItem);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put('/featured/:id', upload.array('images', 5), async (req, res) => {
+  try {
+    const item = await FeaturedItem.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Featured item not found' });
+
+    if (req.body.name !== undefined) item.name = req.body.name;
+    if (req.body.description !== undefined) item.description = req.body.description;
+    if (req.body.price !== undefined) item.price = req.body.price;
+
+    if (req.body.imagesToDelete) {
+      const toDelete = JSON.parse(req.body.imagesToDelete);
+      for (const publicId of toDelete) {
+        if (publicId) {
+          try {
+            await cloudinary.uploader.destroy(publicId);
+            item.images = item.images.filter(img => img.publicId !== publicId);
+          } catch (delErr) {}
+        }
+      }
+    }
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await streamUpload(file.buffer, 'dubai_fast_food/featured');
+        item.images.push({ url: result.secure_url, publicId: result.public_id });
+      }
+    }
+
+    await item.save();
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.delete('/featured/:id', async (req, res) => {
+  try {
+    const item = await FeaturedItem.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+
+    // Uncheck in original model
+    if (item.referenceId) {
+      if (item.itemModel === 'Deal') {
+        await Deal.findByIdAndUpdate(item.referenceId, { isFeatured: false });
+      } else if (item.itemModel === 'MenuItem') {
+        await MenuItem.findByIdAndUpdate(item.referenceId, { isFeatured: false });
+      }
+    }
+
+    if (item.images && item.images.length > 0) {
+      for (const img of item.images) {
+        if (img.publicId) await cloudinary.uploader.destroy(img.publicId);
+      }
+    }
+
+    await FeaturedItem.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Featured item deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 const MenuCategory = require('../models/MenuCategory');
 const HomeCategory = require('../models/HomeCategory');

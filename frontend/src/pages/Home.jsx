@@ -34,10 +34,14 @@ const Home = () => {
         ]);
         if (settingsRes.data) setSettings(settingsRes.data);
         if (dealsRes.data) {
-          const featured = dealsRes.data.filter(d => d.isFeatured);
-          setFeaturedDeals(featured);
+          // Deals are just regular deals now, not filtered here for featured
         }
-        if (itemsRes.data) setFeaturedItems(itemsRes.data); // Show all featured items
+        
+        if (itemsRes.data) {
+          const featured = itemsRes.data;
+          setFeaturedDeals(featured.filter(i => i.itemType === 'deal'));
+          setFeaturedItems(featured.filter(i => i.itemType === 'menuitem' || i.itemType === 'custom'));
+        }
         if (catsRes.data) setCategories(catsRes.data);
 
       } catch (err) {
@@ -48,8 +52,51 @@ const Home = () => {
   }, []);
 
   const handleAddToCart = (item, size = null, price) => {
-    dispatch(addToCart({ ...item, size: size?.name, price: price || item.price, qty: 1 }));
-    toast.success(`${item.name || item.dealNumber} added to cart!`);
+    // If it's a FeaturedItem, we need to add the actual reference or standard format
+    const itemData = item.referenceId ? { ...item.referenceId, ...item, _id: item.referenceId._id || item._id } : item;
+    
+    dispatch(addToCart({ ...itemData, size: size?.name, price: price || getDisplayPrice(item), qty: 1, name: getDisplayName(item) }));
+    toast.success(`${getDisplayName(item)} added to cart!`);
+  };
+
+  const getDisplayName = (item) => {
+    if (item.name) return item.name;
+    if (item.referenceId) return item.referenceId.name || item.referenceId.dealNumber;
+    return 'Unnamed Item';
+  };
+
+  const getDisplayPrice = (item) => {
+    if (item.price) return item.price;
+    if (item.referenceId) return item.referenceId.price || (item.referenceId.sizes?.length ? item.referenceId.sizes[0].price : 0);
+    return 0;
+  };
+
+  const getDisplayImage = (item) => {
+    if (item.images && item.images.length > 0) return item.images[0].url;
+    if (item.image) return item.image;
+    if (item.referenceId) {
+      if (item.referenceId.images && item.referenceId.images.length > 0) return item.referenceId.images[0].url;
+      if (item.referenceId.image) return item.referenceId.image;
+    }
+    return null;
+  };
+  
+  const getDisplayImagesArray = (item) => {
+    if (item.images && item.images.length > 0) return item.images;
+    if (item.referenceId && item.referenceId.images && item.referenceId.images.length > 0) return item.referenceId.images;
+    return [];
+  };
+
+  const getDisplayIncludedItems = (item) => {
+    if (item.includedItems && item.includedItems.length > 0) return item.includedItems;
+    if (item.referenceId && item.referenceId.includedItems) return item.referenceId.includedItems;
+    return [];
+  };
+
+  const getDisplaySizes = (item) => {
+    if (item.sizes && item.sizes.length > 0) return item.sizes;
+    if (item.referenceId && item.referenceId.sizes) return item.referenceId.sizes;
+    return [];
   };
 
   // Animation Variants
@@ -212,10 +259,10 @@ const Home = () => {
                   className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-shadow group flex flex-col h-full"
                 >
                   <div className="relative h-40 overflow-hidden bg-yellow-50 flex items-center justify-center">
-                    {(deal.images && deal.images.length > 0) ? (
-                      <ImageSlider images={deal.images} interval={2500 + Math.random() * 2000} />
-                    ) : deal.image ? (
-                      <img src={deal.image} alt={deal.dealNumber} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    {getDisplayImagesArray(deal).length > 0 ? (
+                      <ImageSlider images={getDisplayImagesArray(deal)} interval={2500 + Math.random() * 2000} />
+                    ) : getDisplayImage(deal) ? (
+                      <img src={getDisplayImage(deal)} alt={getDisplayName(deal)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <span className="text-4xl">🔥</span>
                     )}
@@ -224,15 +271,15 @@ const Home = () => {
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                     <div className="absolute bottom-3 left-3 right-3">
-                      <h4 className="text-lg font-black text-white mb-0.5">{deal.dealNumber}</h4>
-                      <p className="text-gray-200 text-xs line-clamp-2">{(deal.includedItems || []).join(', ')}</p>
+                      <h4 className="text-lg font-black text-white mb-0.5">{deal.referenceId ? deal.referenceId.dealNumber : getDisplayName(deal)}</h4>
+                      <p className="text-gray-200 text-xs line-clamp-2">{getDisplayIncludedItems(deal).join(', ')}</p>
                     </div>
                   </div>
                   <div className="p-5 bg-white flex flex-col flex-1">
                     <div className="flex justify-between items-center mb-4">
                       <div>
                         {deal.name && <span className="text-gray-400 text-xs font-medium block">{deal.name}</span>}
-                        <div className="text-xl font-black text-primary">Rs. {deal.price}</div>
+                        <div className="text-xl font-black text-primary">Rs. {getDisplayPrice(deal)}</div>
                       </div>
                     </div>
                     <button onClick={(e) => { e.preventDefault(); handleAddToCart(deal); }} className="btn-primary w-full py-2.5 text-sm justify-center shadow-sm hover:shadow-md mt-auto">
@@ -266,20 +313,22 @@ const Home = () => {
                   className="bg-white rounded-2xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 flex flex-col h-full"
                 >
                   <div className="h-28 md:h-36 bg-gray-100 rounded-xl mb-3 overflow-hidden relative">
-                    {(item.images && item.images.length > 0) ? (
-                      <ImageSlider images={item.images} interval={2500 + Math.random() * 2000} />
+                    {getDisplayImagesArray(item).length > 0 ? (
+                      <ImageSlider images={getDisplayImagesArray(item)} interval={2500 + Math.random() * 2000} />
+                    ) : getDisplayImage(item) ? (
+                      <img src={getDisplayImage(item)} alt={getDisplayName(item)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">No Image</div>
                     )}
                   </div>
                   <div className="flex-1 flex flex-col text-center mt-1">
-                    <h4 className="text-sm md:text-base font-black text-gray-900 leading-tight mb-1">{item.name}</h4>
-                    {item.description && <p className="text-[10px] md:text-xs text-gray-500 line-clamp-2 mb-2 hidden md:block">{item.description}</p>}
+                    <h4 className="text-sm md:text-base font-black text-gray-900 leading-tight mb-1">{getDisplayName(item)}</h4>
+                    {(item.description || (item.referenceId && item.referenceId.description)) && <p className="text-[10px] md:text-xs text-gray-500 line-clamp-2 mb-2 hidden md:block">{item.description || item.referenceId.description}</p>}
 
                     <div className="mt-auto pt-2 border-t border-gray-50">
-                      {item.sizes && item.sizes.length > 0 ? (
+                      {getDisplaySizes(item).length > 0 ? (
                         <div className="flex flex-wrap justify-center gap-1">
-                          {item.sizes.map((size, idx) => (
+                          {getDisplaySizes(item).map((size, idx) => (
                             <button
                               key={idx}
                               onClick={(e) => { e.preventDefault(); handleAddToCart(item, size, size.price); }}
@@ -292,9 +341,9 @@ const Home = () => {
                         </div>
                       ) : (
                         <div className="flex justify-between items-center px-1">
-                          <span className="font-black text-primary text-sm md:text-base">Rs. {item.price}</span>
+                          <span className="font-black text-primary text-sm md:text-base">Rs. {getDisplayPrice(item)}</span>
                           <button
-                            onClick={(e) => { e.preventDefault(); handleAddToCart(item, null, item.price); }}
+                            onClick={(e) => { e.preventDefault(); handleAddToCart(item, null, getDisplayPrice(item)); }}
                             className="bg-secondary text-white text-[10px] md:text-xs px-3 py-1.5 rounded-lg hover:bg-gray-900 transition-colors shadow-sm"
                           >
                             Add

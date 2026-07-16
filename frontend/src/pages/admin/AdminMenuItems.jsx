@@ -25,6 +25,7 @@ const AdminMenuItems = () => {
   const [isFeatured, setIsFeatured] = useState(false);
   const [activeTab, setActiveTab] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name-asc');
   
   const [existingImages, setExistingImages] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
@@ -178,9 +179,26 @@ const AdminMenuItems = () => {
         filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
       }
 
+      // Apply Sort
+      filteredItems.sort((a, b) => {
+        const priceA = a.sizes?.length > 0 ? a.sizes[0].price : (a.price || 0);
+        const priceB = b.sizes?.length > 0 ? b.sizes[0].price : (b.price || 0);
+
+        if (sortBy === 'name-asc') {
+          return a.name.localeCompare(b.name);
+        } else if (sortBy === 'name-desc') {
+          return b.name.localeCompare(a.name);
+        } else if (sortBy === 'price-asc') {
+          return priceA - priceB;
+        } else if (sortBy === 'price-desc') {
+          return priceB - priceA;
+        }
+        return 0;
+      });
+
       return { ...group, items: filteredItems };
     }).filter(group => group.items.length > 0);
-  }, [items, activeTab, searchQuery, superCategories]);
+  }, [items, activeTab, searchQuery, sortBy, superCategories]);
 
   return (
     <div>
@@ -199,6 +217,16 @@ const AdminMenuItems = () => {
               className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-sm"
             />
           </div>
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
+            className="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
+          >
+            <option value="name-asc">Sort: A-Z</option>
+            <option value="name-desc">Sort: Z-A</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
           <button 
             onClick={() => { setShowForm(!showForm); if(!showForm) resetForm(); }}
             className="flex items-center gap-2 bg-primary text-secondary font-bold px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors"

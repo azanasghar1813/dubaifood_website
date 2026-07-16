@@ -10,6 +10,7 @@ const AdminDeals = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [sortBy, setSortBy] = useState('dealNumber-asc');
   
   const [dealNumber, setDealNumber] = useState('');
   const [name, setName] = useState('');
@@ -138,13 +139,27 @@ const AdminDeals = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Featured Deals</h1>
         </div>
-        <button 
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-primary text-secondary font-bold px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
-        >
-          {showForm ? <X size={18} /> : <Plus size={18} />}
-          <span>{showForm ? 'Cancel' : 'Add New Deal'}</span>
-        </button>
+        <div className="flex gap-4">
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
+            className="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
+          >
+            <option value="dealNumber-asc">Sort: Deal Number (Asc)</option>
+            <option value="dealNumber-desc">Sort: Deal Number (Desc)</option>
+            <option value="name-asc">Sort: Name (A-Z)</option>
+            <option value="name-desc">Sort: Name (Z-A)</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+          <button 
+            onClick={() => setShowForm(!showForm)}
+            className="flex items-center gap-2 bg-primary text-secondary font-bold px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+          >
+            {showForm ? <X size={18} /> : <Plus size={18} />}
+            <span>{showForm ? 'Cancel' : 'Add New Deal'}</span>
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -242,7 +257,28 @@ const AdminDeals = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {loading ? <p>Loading deals...</p> : deals.map((deal) => (
+        {loading ? <p>Loading deals...</p> : [...deals].sort((a, b) => {
+          if (sortBy === 'name-asc') return (a.name || '').localeCompare(b.name || '');
+          if (sortBy === 'name-desc') return (b.name || '').localeCompare(a.name || '');
+          if (sortBy === 'price-asc') return (a.price || 0) - (b.price || 0);
+          if (sortBy === 'price-desc') return (b.price || 0) - (a.price || 0);
+          
+          // Natural sort for deal numbers (e.g. Deal 1 vs Deal 10)
+          if (sortBy === 'dealNumber-asc') {
+            const aIsRest = (a.dealNumber || '').toLowerCase().includes('restaurant') || (a.name || '').toLowerCase().includes('restaurant');
+            const bIsRest = (b.dealNumber || '').toLowerCase().includes('restaurant') || (b.name || '').toLowerCase().includes('restaurant');
+            if (aIsRest !== bIsRest) return aIsRest ? 1 : -1;
+            return a.dealNumber.localeCompare(b.dealNumber, undefined, { numeric: true, sensitivity: 'base' });
+          }
+          if (sortBy === 'dealNumber-desc') {
+            const aIsRest = (a.dealNumber || '').toLowerCase().includes('restaurant') || (a.name || '').toLowerCase().includes('restaurant');
+            const bIsRest = (b.dealNumber || '').toLowerCase().includes('restaurant') || (b.name || '').toLowerCase().includes('restaurant');
+            if (aIsRest !== bIsRest) return aIsRest ? 1 : -1; // Keep restaurant deals at bottom even in desc
+            return b.dealNumber.localeCompare(a.dealNumber, undefined, { numeric: true, sensitivity: 'base' });
+          }
+          
+          return 0;
+        }).map((deal) => (
           <div key={deal._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
             <div className="h-48 bg-gray-100">
               {(deal.images && deal.images.length > 0) ? (

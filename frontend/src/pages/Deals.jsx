@@ -36,12 +36,17 @@ const Deals = () => {
     if (sortBy === 'priceAsc') return a.price - b.price;
     if (sortBy === 'priceDesc') return b.price - a.price;
     if (sortBy === 'dealNumber') {
+      const aIsRest = (a.dealNumber || '').toLowerCase().includes('restaurant') || (a.name || '').toLowerCase().includes('restaurant');
+      const bIsRest = (b.dealNumber || '').toLowerCase().includes('restaurant') || (b.name || '').toLowerCase().includes('restaurant');
+      
+      if (aIsRest !== bIsRest) return aIsRest ? 1 : -1;
+
       const numA = a.dealNumber ? parseInt(String(a.dealNumber).replace(/\D/g, '')) || 0 : 0;
       const numB = b.dealNumber ? parseInt(String(b.dealNumber).replace(/\D/g, '')) || 0 : 0;
       
       // If both have the same number (e.g. 0), sort alphabetically
       if (numA === numB) {
-        return String(a.dealNumber || '').localeCompare(String(b.dealNumber || ''));
+        return String(a.dealNumber || '').localeCompare(String(b.dealNumber || ''), undefined, { numeric: true, sensitivity: 'base' });
       }
       return numA - numB;
     }
