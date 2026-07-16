@@ -92,6 +92,7 @@ const Menu = () => {
   const [activeTab, setActiveTab] = useState('fastfood');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+  const [sortBy, setSortBy] = useState('default');
   const [selectedItemForModal, setSelectedItemForModal] = useState(null);
   const [activeSection, setActiveSection] = useState('');
   const dispatch = useDispatch();
@@ -181,9 +182,28 @@ const Menu = () => {
         );
       }
 
+      // Apply Sort
+      if (sortBy === 'priceAsc') {
+        filteredItems.sort((a, b) => {
+           const priceA = a.sizes?.length ? a.sizes[0].price : a.price;
+           const priceB = b.sizes?.length ? b.sizes[0].price : b.price;
+           return priceA - priceB;
+        });
+      } else if (sortBy === 'priceDesc') {
+        filteredItems.sort((a, b) => {
+           const priceA = a.sizes?.length ? a.sizes[0].price : a.price;
+           const priceB = b.sizes?.length ? b.sizes[0].price : b.price;
+           return priceB - priceA;
+        });
+      } else if (sortBy === 'nameAsc') {
+        filteredItems.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortBy === 'nameDesc') {
+        filteredItems.sort((a, b) => b.name.localeCompare(a.name));
+      }
+
       return { ...group, items: filteredItems };
     }).filter(group => group.items.length > 0);
-  }, [menuData, activeTab, searchQuery, activeFilter, superCategories]);
+  }, [menuData, activeTab, searchQuery, activeFilter, sortBy, superCategories]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -259,16 +279,35 @@ const Menu = () => {
 
       <div className="max-w-7xl mx-auto px-4 -mt-8 relative z-20 mb-8">
         {/* Search & Filter Bar */}
-        <div className="bg-white rounded-2xl shadow-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center border border-gray-100">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search burgers, pizzas..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all font-medium"
-            />
+        <div className="bg-white rounded-2xl shadow-xl p-4 flex flex-col xl:flex-row gap-4 justify-between items-center border border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto flex-1">
+            <div className="relative w-full sm:max-w-md flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search burgers, pizzas..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all font-medium"
+              />
+            </div>
+            
+            <div className="relative w-full sm:w-auto shrink-0">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full sm:w-48 appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all font-medium text-gray-600 cursor-pointer"
+              >
+                <option value="default">Default Sort</option>
+                <option value="priceAsc">Price: Low to High</option>
+                <option value="priceDesc">Price: High to Low</option>
+                <option value="nameAsc">Name: A to Z</option>
+                <option value="nameDesc">Name: Z to A</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto hide-scrollbar">

@@ -8,6 +8,7 @@ import ImageSlider from '../components/ImageSlider';
 const Deals = () => {
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('dealNumber');
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -31,13 +32,47 @@ const Deals = () => {
 
   if (loading) return <div className="text-center py-20 text-xl font-bold">Loading Deals...</div>;
 
+  const sortedDeals = [...deals].sort((a, b) => {
+    if (sortBy === 'priceAsc') return a.price - b.price;
+    if (sortBy === 'priceDesc') return b.price - a.price;
+    if (sortBy === 'dealNumber') {
+      const numA = a.dealNumber ? parseInt(String(a.dealNumber).replace(/\D/g, '')) || 0 : 0;
+      const numB = b.dealNumber ? parseInt(String(b.dealNumber).replace(/\D/g, '')) || 0 : 0;
+      
+      // If both have the same number (e.g. 0), sort alphabetically
+      if (numA === numB) {
+        return String(a.dealNumber || '').localeCompare(String(b.dealNumber || ''));
+      }
+      return numA - numB;
+    }
+    return 0;
+  });
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold text-center mb-4 text-accent">Exclusive Deals</h1>
-      <p className="text-center text-gray-500 mb-12">Grab these amazing offers before they expire!</p>
+      
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-12 gap-4 max-w-7xl mx-auto">
+        <p className="text-center sm:text-left text-gray-500">Grab these amazing offers before they expire!</p>
+        
+        <div className="relative w-full sm:w-auto">
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full sm:w-56 appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all font-medium text-gray-700 shadow-sm cursor-pointer"
+          >
+            <option value="dealNumber">Sort by Deal Number</option>
+            <option value="priceAsc">Price: Low to High</option>
+            <option value="priceDesc">Price: High to Low</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+          </div>
+        </div>
+      </div>
       
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
-        {deals.map((deal) => (
+        {sortedDeals.map((deal) => (
           <div key={deal._id} className="card border md:border-2 border-primary p-2 md:p-4 relative overflow-hidden flex flex-col h-full">
             <div className="absolute top-0 right-0 bg-accent text-white px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-sm font-bold rounded-bl-lg">
               {deal.dealNumber}
