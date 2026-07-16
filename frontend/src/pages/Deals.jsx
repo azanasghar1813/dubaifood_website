@@ -78,8 +78,13 @@ const Deals = () => {
       
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {sortedDeals.map((deal) => (
-          <div key={deal._id} className="card border md:border-2 border-primary p-2 md:p-4 relative overflow-hidden flex flex-col h-full">
-            <div className="absolute top-0 right-0 bg-accent text-white px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-sm font-bold rounded-bl-lg">
+          <div key={deal._id} className={`card border md:border-2 ${deal.isFeatured ? 'border-yellow-400' : 'border-primary'} p-2 md:p-4 relative overflow-hidden flex flex-col h-full`}>
+            {deal.isFeatured && (
+              <div className="absolute top-0 left-0 bg-yellow-400 text-yellow-900 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-sm font-bold rounded-br-lg z-10 flex items-center gap-1 shadow-sm">
+                ⭐ Featured
+              </div>
+            )}
+            <div className="absolute top-0 right-0 bg-accent text-white px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-sm font-bold rounded-bl-lg z-10">
               {deal.dealNumber}
             </div>
             

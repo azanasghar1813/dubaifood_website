@@ -271,18 +271,18 @@ const Home = () => {
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                     <div className="absolute bottom-3 left-3 right-3">
-                      <h4 className="text-lg font-black text-white mb-0.5">{deal.referenceId ? deal.referenceId.dealNumber : getDisplayName(deal)}</h4>
+                      <h4 className="text-lg font-black text-white mb-0.5">{getDisplayName(deal)}</h4>
                       <p className="text-gray-200 text-xs line-clamp-2">{getDisplayIncludedItems(deal).join(', ')}</p>
                     </div>
                   </div>
                   <div className="p-5 bg-white flex flex-col flex-1">
                     <div className="flex justify-between items-center mb-4">
                       <div>
-                        {deal.name && <span className="text-gray-400 text-xs font-medium block">{deal.name}</span>}
+                        {deal.referenceId && deal.name && <span className="text-gray-400 text-xs font-medium block">{deal.referenceId.dealNumber}</span>}
                         <div className="text-xl font-black text-primary">Rs. {getDisplayPrice(deal)}</div>
                       </div>
                     </div>
-                    <button onClick={(e) => { e.preventDefault(); handleAddToCart(deal); }} className="btn-primary w-full py-2.5 text-sm justify-center shadow-sm hover:shadow-md mt-auto">
+                    <button onClick={(e) => { e.preventDefault(); handleAddToCart(deal.referenceId || deal, null, getDisplayPrice(deal)); }} className="btn-primary w-full py-2.5 text-sm justify-center shadow-sm hover:shadow-md mt-auto">
                       Add to Cart
                     </button>
                   </div>

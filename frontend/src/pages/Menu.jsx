@@ -15,8 +15,13 @@ const MenuItemCard = ({ item, activeTab, handleAddToCart, setSelectedItemForModa
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="card flex flex-col justify-between group h-full"
+      className={`card relative flex flex-col justify-between group h-full ${item.isFeatured ? 'border-2 border-yellow-400' : ''}`}
     >
+      {item.isFeatured && (
+        <div className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 px-3 py-1 text-[10px] md:text-xs font-bold rounded-bl-xl rounded-tr-2xl z-20 flex items-center gap-1 shadow-sm">
+          ⭐ Featured
+        </div>
+      )}
       <div className="p-3 md:p-5 flex-grow">
         <div className="h-28 md:h-48 bg-gray-50 rounded-xl md:rounded-2xl mb-3 md:mb-5 flex items-center justify-center text-4xl md:text-6xl overflow-hidden relative border border-gray-100">
           {(item.images && item.images.length > 0) ? (
